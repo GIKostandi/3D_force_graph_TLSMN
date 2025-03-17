@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response</title>
+<body>
+<h2>Response:</h2>
+<pre>{{ response|safe }}</pre>
+<a href="{% url 'auth_view' %}" class="btn btn-secondary">Назад</a>
+</body>
+</html>
