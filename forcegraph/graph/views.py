@@ -1,4 +1,3 @@
-
 import json
 from django.shortcuts import render
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
@@ -6,7 +5,7 @@ from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
 #cтенды (в будушем сделать через БД)
 STANDS = {
     "MGIMO": {
-        "graphql_uri": "https://mgimo.tыalisman.ispras.ru/graphql",
+        "graphql_uri": "https://mgimo.talisman.ispras.ru/graphql",
         "auth_url": "https://mgimo.talisman.ispras.ru/auth/",
     }
 }
@@ -21,9 +20,6 @@ def auth_view(request):
         username = request.POST.get("login")
         password = request.POST.get("password")
         research_map = request.POST.get("research_map")
-
-        if stand_id not in STANDS:
-            return render(request, "auth_form.html", {"error": "Выбран некорректный стенд"})
 
         graphql_uri = STANDS[stand_id]["graphql_uri"]
         keycloak_auth_url = STANDS[stand_id]["auth_url"]
@@ -62,7 +58,6 @@ def auth_view(request):
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
-
-        return render(request, "result.html", {"response": response})
+        return render(request, "3d_graph.html", {"response": response})
 
     return render(request, "auth_form.html")
