@@ -3,10 +3,10 @@ import json
 from django.shortcuts import render
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
 
-# Доступные стенды (можно добавить другие, если нужно)
+#cтенды (в будушем сделать через БД)
 STANDS = {
     "MGIMO": {
-        "graphql_uri": "https://mgimo.talisman.ispras.ru/graphql",
+        "graphql_uri": "https://mgimo.tыalisman.ispras.ru/graphql",
         "auth_url": "https://mgimo.talisman.ispras.ru/auth/",
     }
 }
@@ -17,7 +17,7 @@ client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
 
 def auth_view(request):
     if request.method == "POST":
-        stand_id = request.POST.get("stand")  # Получаем выбранный стенд
+        stand_id = request.POST.get("stand")
         username = request.POST.get("login")
         password = request.POST.get("password")
         research_map = request.POST.get("research_map")
@@ -36,7 +36,6 @@ def auth_view(request):
             client_secret=client_key
         ).__enter__()
 
-        # Формируем GraphQL-запрос
         query = f"""
         query MyQuery {{
           researchMap(id: "{research_map}") {{
@@ -60,7 +59,6 @@ def auth_view(request):
         """
         response = gql_client.execute(query)
 
-        # Записываем JSON-ответ в файл
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
