@@ -1,4 +1,4 @@
-import os
+import os, json
 from dotenv import load_dotenv
 from ptal_api.adapter import TalismanAPIAdapter
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
@@ -45,4 +45,8 @@ query MyQuery {{
 }}
 """
 response = gql_client.execute(query)
+
+with open("response.json", "w", encoding="utf-8") as file:
+    json.dump(response, file, indent=4, ensure_ascii=False)
+
 print(response)
