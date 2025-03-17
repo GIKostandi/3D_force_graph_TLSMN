@@ -10,6 +10,7 @@ realm = 'core'
 client_id = 'web-ui'
 client_key = '039f8182-db0a-45d9-bc25-e1a979b06bfd'
 load_dotenv()
+
 # Данные для доступа к стенду
 user = os.getenv("GQL_USER")
 pwd = os.getenv("GQL_PASSWORD")
