@@ -19,7 +19,6 @@ def auth_view(request):
         graphql_url = stand.graphql_url
         keycloak_auth_url = stand.auth_url
 
-        # Создаем GraphQL-клиент
         gql_client = KeycloakAwareGQLClient(
             graphql_url, 10000, 5,
             auth_url=keycloak_auth_url,
@@ -50,10 +49,12 @@ def auth_view(request):
         """
         response = gql_client.execute(query)
 
-        # Сохраняем ответ в файл
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
         return render(request, "result.html", {"response": response, "stand": stand})
 
     return render(request, "auth_form.html", {"stands":stands})
+
+def graph_view(request):
+    return render(request, "3d_graph.html")
