@@ -1,32 +1,28 @@
 import json
 from django.shortcuts import render
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
-
-#cтенды (в будушем сделать через БД)
-STANDS = {
-    "MGIMO": {
-        "graphql_uri": "https://mgimo.talisman.ispras.ru/graphql",
-        "auth_url": "https://mgimo.talisman.ispras.ru/auth/",
-    }
-}
+from .models import Stands
 
 realm = "core"
 client_id = "web-ui"
-client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
+# client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
 
 def auth_view(request):
+    stands=Stands.objects.all()
     if request.method == "POST":
-        stand_id = request.POST.get("stand")
+        stand_name = request.POST.get("stand")
+        client_key = request.POST.get("client_key")
         username = request.POST.get("login")
         password = request.POST.get("password")
         research_map = request.POST.get("research_map")
 
-        graphql_uri = STANDS[stand_id]["graphql_uri"]
-        keycloak_auth_url = STANDS[stand_id]["auth_url"]
+        stand = Stands.objects.get(stand=stand_name)
+        graphql_url = stand.graphql_url
+        keycloak_auth_url = stand.auth_url
 
         # Создаем GraphQL-клиент
         gql_client = KeycloakAwareGQLClient(
-            graphql_uri, 10000, 5,
+            graphql_url, 10000, 5,
             auth_url=keycloak_auth_url,
             realm=realm, client_id=client_id, user=username, pwd=password,
             client_secret=client_key
@@ -55,9 +51,10 @@ def auth_view(request):
         """
         response = gql_client.execute(query)
 
+        # Сохраняем ответ в файл
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
-        return render(request, "3d_graph.html", {"response": response})
+        return render(request, "result.html", {"response": response})
 
-    return render(request, "auth_form.html")
+    return render(request, "auth_form.html", {"stands":stands})

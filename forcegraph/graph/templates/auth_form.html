@@ -54,9 +54,15 @@
     <div class="mb-3">
         <label for="standSelect" class="form-label">Стенд</label>
         <select class="form-select" id="standSelect" name="stand" required>
-            <option value="" disabled selected>Выберите стенд...</option>
-            <option value="MGIMO">MGIMO</option>
+        <option value="" disabled selected>Выберите стенд...</option>
+        {% for stand in stands %}
+            <option value="{{ stand.stand }}">{{ stand.stand }}</option>
+        {% endfor %}
         </select>
+    </div>
+       <div class="mb-3">
+        <label for="client_key" class="form-label">client_key</label>
+        <input type="text" class="form-control" id="client_key" name="client_key" placeholder="Введите client_key" required>
     </div>
     <div class="mb-3">
         <label for="login" class="form-label">Логин</label>
