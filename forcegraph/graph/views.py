@@ -5,13 +5,12 @@ from .models import Stands
 
 realm = "core"
 client_id = "web-ui"
-# client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
+client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
 
 def auth_view(request):
     stands=Stands.objects.all()
     if request.method == "POST":
         stand_name = request.POST.get("stand")
-        client_key = request.POST.get("client_key")
         username = request.POST.get("login")
         password = request.POST.get("password")
         research_map = request.POST.get("research_map")
@@ -55,6 +54,6 @@ def auth_view(request):
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
-        return render(request, "result.html", {"response": response})
+        return render(request, "result.html", {"response": response, "stand": stand})
 
     return render(request, "auth_form.html", {"stands":stands})
