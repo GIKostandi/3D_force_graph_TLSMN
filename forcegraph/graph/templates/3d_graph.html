@@ -1,79 +1,100 @@
-<html><head>
-  <style> body { margin: 0; } </style>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
 
-  <script src="//unpkg.com/3d-force-graph"></script><style type="text/css">.graph-info-msg {
-  top: 50%;
-  width: 100%;
-  text-align: center;
-  color: lavender;
-  opacity: 0.7;
-  font-size: 22px;
-  position: absolute;
-  font-family: Sans-serif;
-}
+    <script src="//unpkg.com/3d-force-graph"></script>
+    <!--  <script src="../../dist/3d-force-graph.js"></script>-->
 
-.scene-container .clickable {
-  cursor: pointer;
-}
+    <style>
+      .node-label {
+        font-size: 12px;
+        padding: 1px 4px;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, 0.5);
+        user-select: none;
+      }
+    </style>
+  </head>
 
-.scene-container .grabbable {
-  cursor: move;
-  cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
-}
+  <body>
+    <div id="3d-graph"></div>
 
-.scene-container .grabbable:active {
-  cursor: grabbing;
-  cursor: -moz-grabbing;
-  cursor: -webkit-grabbing;
-}</style><style type="text/css">.float-tooltip-kap {
-  position: absolute;
-  width: max-content; /* prevent shrinking near right edge */
-  max-width: max(50%, 150px);
-  padding: 3px 5px;
-  border-radius: 3px;
-  font: 12px sans-serif;
-  color: #eee;
-  background: rgba(0,0,0,0.6);
-  pointer-events: none;
-}
-</style><style type="text/css">.scene-nav-info {
-  position: absolute;
-  bottom: 5px;
-  width: 100%;
-  text-align: center;
-  color: slategrey;
-  opacity: 0.7;
-  font-size: 10px;
-  font-family: sans-serif;
-  pointer-events: none;
-  user-select: none;
-}
+    <script type="module">
+      import {
+        CSS2DRenderer,
+        CSS2DObject,
+      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
 
-.scene-container canvas:focus {
-  outline: none;
-}</style>
-  <!--<script src="../../dist/3d-force-graph.js"></script>-->
-</head>
+      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
 
-<body>
-  <div id="3d-graph"><div style="position: relative;"><div><div class="scene-container" style="position: relative; width: 1920px; height: 956px;"><div class="scene-nav-info">Left-click: rotate, Mouse-wheel/middle-click: zoom, Right-click: pan</div><div class="float-tooltip-kap" style="left: 1783px; display: none; top: 213px; transform: translate(-92.8646%, 21px);"></div><canvas data-engine="three.js r173" width="1920" height="956" style="display: block; touch-action: none; width: 1920px; height: 956px;"></canvas></div></div><div class="graph-info-msg"></div></div></div>
+      if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
+        console.error("Некорректный JSON:", graphDataRaw);
+      } else {
+        const nodes = new Map();
+        const links = [];
+        const validNodeIds = new Set();
 
-  <script>
-    // Random tree
-    const N = 300;
-    const gData = {
-      nodes: [...Array(N).keys()].map(i => ({ id: i })),
-      links: [...Array(N).keys()]
-        .filter(id => id)
-        .map(id => ({
-          source: id,
-          target: Math.round(Math.random() * (id-1))
-        }))
-    };
+        graphDataRaw.data.researchMap.paginationConcept.listConcept.forEach(
+          (concept) => {
+            const conceptId = concept.id;
+            const conceptName = concept.name;
+            validNodeIds.add(conceptId);
 
-    const Graph = new ForceGraph3D(document.getElementById('3d-graph'))
-        .graphData(gData);
-  </script>
-</body></html>
+            nodes.set(conceptId, {
+              id: conceptId,
+              name: conceptName,
+              group: concept.paginationConceptLink
+                ? concept.paginationConceptLink.listConceptLink.length
+                : 1,
+            });
+          }
+        );
+
+        graphDataRaw.data.researchMap.paginationConcept.listConcept.forEach(
+          (concept) => {
+            if (concept.paginationConceptLink) {
+              concept.paginationConceptLink.listConceptLink.forEach((link) => {
+                const fromId = link.from.id;
+                const toId = link.to.id;
+                const linkType = link.conceptLinkType.name;
+
+                if (validNodeIds.has(fromId) && validNodeIds.has(toId)) {
+                  links.push({
+                    source: fromId,
+                    target: toId,
+                    value: 1,
+                    label: linkType,
+                  });
+                }
+              });
+            }
+          }
+        );
+
+        const graphData = {
+          nodes: Array.from(nodes.values()),
+          links: links,
+        };
+
+        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
+          extraRenderers: [new CSS2DRenderer()],
+        })
+          .graphData(graphData)
+          .nodeAutoColorBy("group")
+          .nodeThreeObject((node) => {
+            const nodeEl = document.createElement("div");
+            nodeEl.textContent = node.name;
+            nodeEl.style.color = node.color;
+            nodeEl.className = "node-label";
+            return new CSS2DObject(nodeEl);
+          })
+          .nodeThreeObjectExtend(true);
+      }
+    </script>
+  </body>
+</html>

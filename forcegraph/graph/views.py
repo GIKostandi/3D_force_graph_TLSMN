@@ -37,9 +37,30 @@ def auth_view(request):
                 name
                 paginationConceptLink(filterSettings: {{}}) {{
                   listConceptLink {{
-                    id
-                    conceptFromId
-                    conceptToId
+                    from {{
+                      ... on Concept {{
+                        id
+                        name
+                        conceptType {{
+                          name
+                          id
+                        }}
+                      }}
+                    }}
+                    to {{
+                      ... on Concept {{
+                        id
+                        name
+                        conceptType {{
+                          name
+                          id
+                        }}
+                      }}
+                    }}
+                    conceptLinkType {{
+                      id
+                      name
+                    }}
                   }}
                 }}
               }}
@@ -47,14 +68,12 @@ def auth_view(request):
           }}
         }}
         """
+
         response = gql_client.execute(query)
 
         with open("response.json", "w", encoding="utf-8") as file:
             json.dump(response, file, indent=4, ensure_ascii=False)
 
-        return render(request, "result.html", {"response": response, "stand": stand})
+        return render(request, "3d_graph.html", {"response": json.dumps(response)})
 
     return render(request, "auth_form.html", {"stands":stands})
-
-def graph_view(request):
-    return render(request, "3d_graph.html")
