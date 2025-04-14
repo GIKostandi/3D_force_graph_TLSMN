@@ -4,13 +4,18 @@
     <style>
       body {
         margin: 0;
+        font-family: sans-serif;
+        overflow: hidden;
       }
-    </style>
 
-    <script src="//unpkg.com/3d-force-graph"></script>
-    <!--  <script src="../../dist/3d-force-graph.js"></script>-->
+      #3d-graph {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+      }
 
-    <style>
       .node-label {
         font-size: 12px;
         padding: 1px 4px;
@@ -18,12 +23,50 @@
         background-color: rgba(0, 0, 0, 0.5);
         user-select: none;
       }
+
+      #info-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100vh;
+        background-color: #ffffffdd;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        padding: 20px;
+        overflow-y: auto;
+        z-index: 10;
+      }
+
+      #info-panel.active {
+        transform: translateX(0);
+      }
+
+      #info-panel h2 {
+        margin-top: 0;
+      }
+
+      #close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 18px;
+      }
     </style>
+
+    <script src="//unpkg.com/3d-force-graph"></script>
   </head>
 
   <body>
     <div id="3d-graph"></div>
 
+    <div id="info-panel">
+      <div id="close-btn">✖️</div>
+      <h2 id="node-name">Выберите узел</h2>
+      <div id="node-details"></div>
+    </div>
     <script type="module">
       import {
         CSS2DRenderer,
@@ -38,12 +81,14 @@
         const nodes = new Map();
         const links = [];
         const validNodeIds = new Set();
+        const conceptInfoMap = new Map();
 
         graphDataRaw.data.researchMap.paginationConcept.listConcept.forEach(
           (concept) => {
             const conceptId = concept.id;
             const conceptName = concept.name;
             validNodeIds.add(conceptId);
+            conceptInfoMap.set(conceptId, concept);
 
             nodes.set(conceptId, {
               id: conceptId,
@@ -80,20 +125,109 @@
           nodes: Array.from(nodes.values()),
           links: links,
         };
+        console.log(graphData);
+
+        // Добавляем neighbors и links в узлы
+        graphData.links.forEach((link) => {
+          const a = graphData.nodes.find((n) => n.id === link.source);
+          const b = graphData.nodes.find((n) => n.id === link.target);
+          if (!a.neighbors) a.neighbors = [];
+          if (!b.neighbors) b.neighbors = [];
+          if (!a.links) a.links = [];
+          if (!b.links) b.links = [];
+          a.neighbors.push(b);
+          b.neighbors.push(a);
+          a.links.push(link);
+          b.links.push(link);
+        });
+
+        const highlightNodes = new Set();
+        const highlightLinks = new Set();
+        let hoverNode = null;
 
         const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
           extraRenderers: [new CSS2DRenderer()],
         })
           .graphData(graphData)
           .nodeAutoColorBy("group")
-          .nodeThreeObject((node) => {
-            const nodeEl = document.createElement("div");
-            nodeEl.textContent = node.name;
-            nodeEl.style.color = node.color;
-            nodeEl.className = "node-label";
-            return new CSS2DObject(nodeEl);
+          .nodeThreeObject(() => null) // Удалили подписи узлов
+          .nodeThreeObjectExtend(true)
+          .nodeColor((node) =>
+            highlightNodes.has(node)
+              ? node === hoverNode
+                ? "red"
+                : "orange"
+              : node.color || "lightblue"
+          )
+          .linkWidth((link) => (highlightLinks.has(link) ? 1 : 0.5))
+          .linkDirectionalParticles((link) =>
+            highlightLinks.has(link) ? 2 : 0
+          )
+          .linkDirectionalParticleWidth(1)
+          .onNodeHover((node) => {
+            if ((!node && !highlightNodes.size) || hoverNode === node) return;
+
+            highlightNodes.clear();
+            highlightLinks.clear();
+            if (node) {
+              highlightNodes.add(node);
+              node.neighbors?.forEach((n) => highlightNodes.add(n));
+              node.links?.forEach((l) => highlightLinks.add(l));
+            }
+            hoverNode = node || null;
+            updateHighlight();
           })
-          .nodeThreeObjectExtend(true);
+          .onLinkHover((link) => {
+            highlightNodes.clear();
+            highlightLinks.clear();
+            if (link) {
+              highlightLinks.add(link);
+              highlightNodes.add(link.source);
+              highlightNodes.add(link.target);
+            }
+            updateHighlight();
+          })
+          .onNodeClick((node) => {
+            const distance = 40;
+            const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+            const newPos =
+              node.x || node.y || node.z
+                ? {
+                    x: node.x * distRatio,
+                    y: node.y * distRatio,
+                    z: node.z * distRatio,
+                  }
+                : { x: 0, y: 0, z: distance };
+
+            Graph.cameraPosition(newPos, node, 3000);
+
+            const infoPanel = document.getElementById("info-panel");
+            const nameEl = document.getElementById("node-name");
+            const detailsEl = document.getElementById("node-details");
+
+            const fullData = conceptInfoMap.get(node.id);
+            nameEl.textContent = node.name;
+            detailsEl.innerHTML = `
+                        <p><strong>ID:</strong> ${node.id}</p>
+                        <p><strong>Связей:</strong> ${node.group}</p>
+                        ${
+                          fullData?.description
+                            ? `<p><strong>Описание:</strong> ${fullData.description}</p>`
+                            : ""
+                        }
+                    `;
+            infoPanel.classList.add("active");
+          });
+
+        function updateHighlight() {
+          Graph.nodeColor(Graph.nodeColor())
+            .linkWidth(Graph.linkWidth())
+            .linkDirectionalParticles(Graph.linkDirectionalParticles());
+        }
+
+        document.getElementById("close-btn").addEventListener("click", () => {
+          document.getElementById("info-panel").classList.remove("active");
+        });
       }
     </script>
   </body>
