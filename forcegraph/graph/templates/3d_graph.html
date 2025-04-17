@@ -128,7 +128,6 @@
         };
         console.log(graphData);
 
-        // Добавляем neighbors и links в узлы
         graphData.links.forEach((link) => {
           const a = graphData.nodes.find((n) => n.id === link.source);
           const b = graphData.nodes.find((n) => n.id === link.target);
@@ -232,12 +231,12 @@
 
         const loader = new THREE.CubeTextureLoader();
         const texture = loader.load([
-          "{% static 'img/5_img.png' %}",
-          "{% static 'img/6_img.png' %}",
-          "{% static 'img/4_img.png' %}",
-          "{% static 'img/2_img.png' %}",
-          "{% static 'img/1_img.png' %}",
-          "{% static 'img/3_img.png' %}",
+          "{% static 'img/Front.png' %}",
+          "{% static 'img/Back.png' %}",
+          "{% static 'img/Up.png' %}",
+          "{% static 'img/Down.png' %}",
+          "{% static 'img/Left.png' %}",
+          "{% static 'img/Right.png' %}",
         ]);
         Graph.scene().background = texture;
       }
