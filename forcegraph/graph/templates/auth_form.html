@@ -28,6 +28,11 @@
       href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
     />
     <style>
+      @font-face {
+  font-family: 'Institut';
+  src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
+       url("{% static 'fonts/Institut.woff' %}") format('woff');
+}
       body {
         display: flex;
         justify-content: center;
@@ -46,7 +51,6 @@
       .acss-12ade3v {
         margin-left: 10px;
         font-family: "Institut", sans-serif;
-        font-weight: 700;
         font-size: 20px;
         line-height: 32px;
         color: #035ba9;
