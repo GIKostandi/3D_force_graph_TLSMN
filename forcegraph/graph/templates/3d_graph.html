@@ -4,35 +4,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title></title>
+    <title>3D Graph</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="https://test.core.talisman.ispras.ru/assets/favicon-16x16.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="https://test.core.talisman.ispras.ru/assets/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="48x48"
-      href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
-    />
     <style>
-     @font-face {
-  font-family: 'Institut';
-  src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
-       url("{% static 'fonts/Institut.woff' %}") format('woff');
-}
+      @font-face {
+        font-family: "Institut";
+        src: url("{% static 'fonts/Institut.woff2' %}") format("woff2"),
+          url("{% static 'fonts/Institut.woff' %}") format("woff");
+      }
+
       body {
         margin: 0;
         font-family: sans-serif;
@@ -74,10 +57,6 @@
         transform: translateX(0);
       }
 
-      #info-panel h2 {
-        margin-top: 0;
-      }
-
       #close-btn {
         position: absolute;
         top: 10px;
@@ -85,15 +64,17 @@
         cursor: pointer;
         font-size: 18px;
       }
+
       .acss-12ade3v {
         margin-left: 10px;
-        font-family: 'Institut', sans-serif;
+        font-family: "Institut", sans-serif;
         font-size: 20px;
         line-height: 32px;
         color: #035ba9;
         white-space: nowrap;
         word-break: keep-all;
       }
+
       .acss-lzfym0 {
         display: flex;
         position: absolute;
@@ -113,7 +94,9 @@
       />
       <div class="acss-12ade3v">3D-GRAPH</div>
     </div>
+
     <div id="3d-graph"></div>
+
     <div id="info-panel">
       <div id="close-btn">✖️</div>
       <h2 id="node-name">Выберите узел</h2>
@@ -121,17 +104,17 @@
     </div>
 
     <script type="module">
-      import * as THREE from 'https://esm.sh/three';
-      import ForceGraph3D from 'https://esm.sh/3d-force-graph';
+      import * as THREE from "https://esm.sh/three";
+      import ForceGraph3D from "https://esm.sh/3d-force-graph";
       import {
         CSS2DRenderer,
         CSS2DObject,
-      } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
+      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
 
-      const graphDataRaw = JSON.parse('{{ response|escapejs }}');
+      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
 
       if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
-        console.error('Некорректный JSON:', graphDataRaw);
+        console.error("Некорректный JSON:", graphDataRaw);
       } else {
         const nodes = new Map();
         const links = [];
@@ -142,18 +125,20 @@
           (concept) => {
             const conceptId = concept.id;
             const conceptName = concept.name;
+            const conceptTypeId = concept.conceptType?.id || "default";
+
             validNodeIds.add(conceptId);
             conceptInfoMap.set(conceptId, concept);
 
             nodes.set(conceptId, {
               id: conceptId,
               name: conceptName,
-              group: concept.paginationConceptLink
-                ? concept.paginationConceptLink.listConceptLink.length
-                : 1,
+              group: conceptTypeId,
             });
           }
         );
+
+        const linkSet = new Set();
 
         graphDataRaw.data.researchMap.paginationConcept.listConcept.forEach(
           (concept) => {
@@ -164,24 +149,50 @@
                 const linkType = link.conceptLinkType.name;
 
                 if (validNodeIds.has(fromId) && validNodeIds.has(toId)) {
-                  links.push({
-                    source: fromId,
-                    target: toId,
-                    value: 1,
-                    label: linkType,
-                  });
+                  const key = `${fromId}->${toId}|${linkType}`;
+                  if (!linkSet.has(key)) {
+                    linkSet.add(key);
+                    links.push({
+                      source: fromId,
+                      target: toId,
+                      value: 1,
+                      label: linkType,
+                    });
+                  }
                 }
               });
             }
           }
         );
 
+        const groupedLinks = new Map();
+        links.forEach((link) => {
+          const key = `${link.source}-${link.target}`;
+          if (!groupedLinks.has(key)) {
+            groupedLinks.set(key, []);
+          }
+          groupedLinks.get(key).push(link);
+        });
+
+        // Назначаем кривизну для каждой связи (если их несколько между двумя узлами)
+        groupedLinks.forEach((linkGroup) => {
+          const total = linkGroup.length;
+          linkGroup.forEach((link, index) => {
+            if (total === 1) {
+              link.curvature = 0;
+            } else {
+              const offset = (index - (total - 1) / 2) * 0.3;
+              link.curvature = offset;
+            }
+          });
+        });
+
         const graphData = {
           nodes: Array.from(nodes.values()),
           links: links,
         };
-        console.log(graphData);
 
+        // Связи узлов
         graphData.links.forEach((link) => {
           const a = graphData.nodes.find((n) => n.id === link.source);
           const b = graphData.nodes.find((n) => n.id === link.target);
@@ -195,40 +206,39 @@
           b.links.push(link);
         });
 
+        console.log(graphData);
         const highlightNodes = new Set();
         const highlightLinks = new Set();
         let hoverNode = null;
 
-        const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
           extraRenderers: [new CSS2DRenderer()],
         })
           .graphData(graphData)
-          .nodeAutoColorBy('group')
+          .nodeAutoColorBy("group")
           .nodeResolution(32)
           .nodeOpacity(0.9)
-          .nodeThreeObject(() => null) // Удалили подписи узлов
+          .nodeThreeObject(() => null)
           .nodeThreeObjectExtend(true)
           .nodeColor((node) =>
             highlightNodes.has(node)
               ? node === hoverNode
-                ? 'red'
-                : 'orange'
-              : node.color || '#cccccc'
+                ? "red"
+                : "orange"
+              : node.color || "#cccccc"
           )
           .linkWidth((link) => (highlightLinks.has(link) ? 0.5 : 0.3))
-          .linkResolution([32])
           .linkDirectionalParticleResolution([32])
           .linkDirectionalParticles((link) =>
             highlightLinks.has(link) ? 2 : 0
           )
           .linkDirectionalParticleWidth(0.5)
-
           .linkDirectionalArrowLength(3)
           .linkDirectionalArrowRelPos(1)
           .linkDirectionalArrowResolution(16)
+          .linkCurvature("curvature")
           .onNodeHover((node) => {
             if ((!node && !highlightNodes.size) || hoverNode === node) return;
-
             highlightNodes.clear();
             highlightLinks.clear();
             if (node) {
@@ -263,22 +273,22 @@
 
             Graph.cameraPosition(newPos, node, 1300);
 
-            const infoPanel = document.getElementById('info-panel');
-            const nameEl = document.getElementById('node-name');
-            const detailsEl = document.getElementById('node-details');
+            const infoPanel = document.getElementById("info-panel");
+            const nameEl = document.getElementById("node-name");
+            const detailsEl = document.getElementById("node-details");
 
             const fullData = conceptInfoMap.get(node.id);
             nameEl.textContent = node.name;
             detailsEl.innerHTML = `
-                        <p><strong>ID:</strong> ${node.id}</p>
-                        <p><strong>Связей:</strong> ${node.group}</p>
-                        ${
-                          fullData?.description
-                            ? `<p><strong>Описание:</strong> ${fullData.description}</p>`
-                            : ''
-                        }
-                    `;
-            infoPanel.classList.add('active');
+              <p><strong>ID:</strong> ${node.id}</p>
+              <p><strong>Связей:</strong> ${node.group}</p>
+              ${
+                fullData?.description
+                  ? `<p><strong>Описание:</strong> ${fullData.description}</p>`
+                  : ""
+              }
+            `;
+            infoPanel.classList.add("active");
           });
 
         function updateHighlight() {
@@ -287,8 +297,8 @@
             .linkDirectionalParticles(Graph.linkDirectionalParticles());
         }
 
-        document.getElementById('close-btn').addEventListener('click', () => {
-          document.getElementById('info-panel').classList.remove('active');
+        document.getElementById("close-btn").addEventListener("click", () => {
+          document.getElementById("info-panel").classList.remove("active");
         });
 
         const loader = new THREE.CubeTextureLoader();

@@ -8,6 +8,10 @@
                     {
                         "id": "ОК-131494196",
                         "name": "Литературные произведения и мемуары",
+                        "conceptType": {
+                            "id": "3261",
+                            "name": "Публикация"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -38,6 +42,10 @@
                     {
                         "id": "ОК-131494194",
                         "name": "Теория Ковалевской в механике",
+                        "conceptType": {
+                            "id": "3261",
+                            "name": "Публикация"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -90,6 +98,10 @@
                     {
                         "id": "ОК-131494191",
                         "name": "Теорема Ковалевской",
+                        "conceptType": {
+                            "id": "3261",
+                            "name": "Публикация"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -120,6 +132,10 @@
                     {
                         "id": "ОК-131494176",
                         "name": "Владимир Онуфриевич Ковалевский",
+                        "conceptType": {
+                            "id": "668",
+                            "name": "Персона"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -238,6 +254,10 @@
                     {
                         "id": "ОК-131493974",
                         "name": "Петербургская академия наук",
+                        "conceptType": {
+                            "id": "3257",
+                            "name": "Научное объединение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -466,6 +486,10 @@
                     {
                         "id": "ОК-131493972",
                         "name": "Шведская королевская академия наук",
+                        "conceptType": {
+                            "id": "3257",
+                            "name": "Научное объединение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -694,6 +718,10 @@
                     {
                         "id": "ОК-131493970",
                         "name": "Парижское математическое общество",
+                        "conceptType": {
+                            "id": "3257",
+                            "name": "Научное объединение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -922,6 +950,10 @@
                     {
                         "id": "ОК-131493968",
                         "name": "Санкт-Петербургский Университет",
+                        "conceptType": {
+                            "id": "725",
+                            "name": "Образовательное учреждение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1062,6 +1094,10 @@
                     {
                         "id": "ОК-131493966",
                         "name": "Гейдельбергский университет",
+                        "conceptType": {
+                            "id": "725",
+                            "name": "Образовательное учреждение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1158,6 +1194,10 @@
                     {
                         "id": "ОК-131493964",
                         "name": "Гёттингенский университет",
+                        "conceptType": {
+                            "id": "725",
+                            "name": "Образовательное учреждение"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1320,6 +1360,10 @@
                     {
                         "id": "ОК-131493956",
                         "name": "Софья Владимировна Ковалевская",
+                        "conceptType": {
+                            "id": "668",
+                            "name": "Персона"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1438,6 +1482,10 @@
                     {
                         "id": "ОК-131493954",
                         "name": "Василий Васильевич Корвин-Круковский",
+                        "conceptType": {
+                            "id": "668",
+                            "name": "Персона"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1534,6 +1582,10 @@
                     {
                         "id": "ОК-131493952",
                         "name": "Елизавета Федоровна Корвин-Круковская",
+                        "conceptType": {
+                            "id": "668",
+                            "name": "Персона"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1630,6 +1682,10 @@
                     {
                         "id": "ОК-131493578",
                         "name": "Софья Васильевна Ковалевская",
+                        "conceptType": {
+                            "id": "668",
+                            "name": "Персона"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -1990,6 +2046,10 @@
                     {
                         "id": "ОК-59849698",
                         "name": "Россия",
+                        "conceptType": {
+                            "id": "1367",
+                            "name": "Государство (Территория)"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -2438,6 +2498,10 @@
                     {
                         "id": "ОК-9221385",
                         "name": "Швеция",
+                        "conceptType": {
+                            "id": "1367",
+                            "name": "Государство (Территория)"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -2886,6 +2950,10 @@
                     {
                         "id": "ОК-226399",
                         "name": "Германия",
+                        "conceptType": {
+                            "id": "1367",
+                            "name": "Государство (Территория)"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {
@@ -3334,6 +3402,10 @@
                     {
                         "id": "ОК-226361",
                         "name": "Франция",
+                        "conceptType": {
+                            "id": "1367",
+                            "name": "Государство (Территория)"
+                        },
                         "paginationConceptLink": {
                             "listConceptLink": [
                                 {

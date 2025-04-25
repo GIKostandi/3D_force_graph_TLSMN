@@ -35,6 +35,10 @@ def auth_view(request):
               listConcept {{
                 id
                 name
+                conceptType {{
+                	id
+                	name
+            	}}
                 paginationConceptLink(filterSettings: {{}}) {{
                   listConceptLink {{
                     from {{
