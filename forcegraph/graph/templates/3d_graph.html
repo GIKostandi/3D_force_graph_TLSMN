@@ -66,6 +66,7 @@
         gap: 10px;
         transform: translateX(0);
         transition: transform 0.3s ease-in-out;
+        pointer-events: none;
       }
 
       #info-panel.active ~ #info-wrapper {
@@ -73,6 +74,7 @@
       }
 
       .settings-btn {
+        pointer-events: auto;
         cursor: pointer;
         transition: transform 0.5s ease;
       }
@@ -80,7 +82,6 @@
       .settings-btn.rotating {
         transform: rotate(180deg);
       }
-
       #settings-panel {
         margin-top: 40px;
         background-color: #ffffffee;
@@ -105,7 +106,6 @@
         top: 10px;
         right: 15px;
         cursor: pointer;
-        font-size: 18px;
       }
 
       .acss-12ade3v {
@@ -124,7 +124,6 @@
         top: 16px;
         left: 24px;
         height: 32px;
-        width: 236px;
         z-index: 100;
       }
       .node-label {
@@ -146,7 +145,9 @@
     </div>
     <div id="3d-graph"></div>
     <div id="info-panel">
-      <div id="close-btn">✖️</div>
+      <div id="close-btn">
+        <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть">
+      </div>
       <h2 id="node-name">Выберите узел</h2>
       <div id="node-details"></div>
     </div>
@@ -392,10 +393,12 @@
 
       const settingsBtn = document.getElementById('settings-toggle');
       const settingsPanel = document.getElementById('settings-panel');
+      const infoWrapper = document.getElementById('info-wrapper');
 
       settingsBtn.addEventListener('click', () => {
         settingsBtn.classList.toggle('rotating');
         settingsPanel.classList.toggle('active');
+
       });
     </script>
   </body>
