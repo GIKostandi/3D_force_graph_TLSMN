@@ -42,15 +42,17 @@
         position: absolute;
         top: 0;
         right: 0;
-        width: 450px;
+        width: 400px;
         height: 100vh;
-        background-color: #ffffffdd;
-        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        background-color: #FFFFFF;
+        opacity: 95%;
         transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
         padding: 20px;
         overflow-y: auto;
         z-index: 100;
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
       }
 
       #info-panel.active {
@@ -70,7 +72,7 @@
       }
 
       #info-panel.active ~ #info-wrapper {
-        transform: translateX(-450px);
+        transform: translateX(-400px);
       }
 
       .settings-btn {
@@ -84,7 +86,7 @@
       }
       #settings-panel {
         margin-top: 40px;
-        background-color: #ffffffee;
+        background-color: #FFFFFFF2;
         border: 1px solid #ccc;
         padding: 10px 14px;
         border-radius: 8px;
@@ -103,8 +105,8 @@
 
       #close-btn {
         position: absolute;
-        top: 10px;
-        right: 15px;
+        top: 16px;
+        right: 20px;
         cursor: pointer;
       }
 
@@ -154,26 +156,10 @@
     <div id="info-wrapper">
       <div id="settings-panel">
         <h5>Настройки</h5>
-        <label
-          ><input type="checkbox" id="display-name" /> Отображать названия
-          узлов</label
-        ><br />
+        <label><input type="checkbox" id="display-name" /> Отображать названия узлов</label><br />
       </div>
       <div id="settings-toggle" class="settings-btn">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          fill="#035ba9"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Zm0-5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"
-          />
-          <path
-            d="M19.43 12.98a7.46 7.46 0 0 0 .05-.98 7.46 7.46 0 0 0-.05-.98l2.11-1.65a.5.5 0 0 0 .12-.65l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.22 7.22 0 0 0-1.7-.98l-.38-2.65a.5.5 0 0 0-.5-.42h-4a.5.5 0 0 0-.5.42l-.38 2.65a7.22 7.22 0 0 0-1.7.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.65L4.57 11a7.46 7.46 0 0 0-.05.98 7.46 7.46 0 0 0 .05.98l-2.11 1.65a.5.5 0 0 0-.12.65l2 3.46a.5.5 0 0 0 .6.22l2.49-1a7.22 7.22 0 0 0 1.7.98l.38 2.65a.5.5 0 0 0 .5.42h4a.5.5 0 0 0 .5-.42l.38-2.65a7.22 7.22 0 0 0 1.7-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.65ZM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4Z"
-          />
-        </svg>
+      <img src="{% static 'icons/gear-icon.svg' %}">
       </div>
     </div>
     <script type="module">
@@ -292,7 +278,7 @@
           .graphData(graphData)
           .nodeAutoColorBy('group')
           .nodeResolution(32)
-          .nodeOpacity(0.9)
+          .nodeOpacity(0.95)
           .nodeThreeObject((node) => {
             const nodeEl = document.createElement('div');
             nodeEl.textContent = node.name;
