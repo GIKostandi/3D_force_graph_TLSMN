@@ -299,9 +299,10 @@
         })
 
           .graphData(graphData)
-          .nodeAutoColorBy("group")
+          .nodeAutoColorBy('group')
           .nodeResolution(32)
           .nodeOpacity(0.95)
+          .nodeLabel('name')
           .nodeThreeObject((node) => {
             const nodeEl = document.createElement("div");
             nodeEl.textContent = node.name;
@@ -361,7 +362,7 @@
                   }
                 : { x: 0, y: 0, z: distance };
 
-            Graph.cameraPosition(newPos, node, 1300);
+            Graph.cameraPosition(newPos, node, 1100);
 
             const infoPanel = document.getElementById("info-panel");
             const nameEl = document.getElementById("node-name");
