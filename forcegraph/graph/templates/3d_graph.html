@@ -33,9 +33,9 @@
     />
     <style>
       @font-face {
-        font-family: 'Institut';
-        src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
-          url("{% static 'fonts/Institut.woff' %}") format('woff');
+        font-family: "Institut";
+        src: url("{% static 'fonts/Institut.woff2' %}") format("woff2"),
+          url("{% static 'fonts/Institut.woff' %}") format("woff");
       }
 
       body {
@@ -52,21 +52,13 @@
         height: 100vh;
       }
 
-      .node-label {
-        font-size: 12px;
-        padding: 1px 4px;
-        border-radius: 4px;
-        background-color: rgba(0, 0, 0, 0.5);
-        user-select: none;
-      }
-
       #info-panel {
         position: absolute;
         top: 0;
         right: 0;
         width: 400px;
         height: 100vh;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         opacity: 95%;
         transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
@@ -105,18 +97,16 @@
         height: 23px;
       }
       .settings-btn img {
-        display:block;
+        display: block;
       }
       .settings-btn.rotating {
         transform: rotate(180deg);
       }
       #settings-panel {
-        margin-top: 40px;
-        background-color: #FFFFFFF2;
-        border: 1px solid #ccc;
+        margin-top: 30px;
+        background-color: #fffffff2;
         padding: 10px 14px;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         opacity: 0;
         transform: translateY(-10px);
         transition: all 0.3s ease;
@@ -138,7 +128,7 @@
 
       .acss-12ade3v {
         margin-left: 10px;
-        font-family: 'Institut', sans-serif;
+        font-family: "Institut", sans-serif;
         font-size: 20px;
         line-height: 32px;
         color: #035ba9;
@@ -160,6 +150,10 @@
         border-radius: 4px;
         background-color: rgba(0, 0, 0, 0.5);
         user-select: none;
+        display: inline;
+      }
+      body.hide-labels .node-label {
+        display: none;
       }
     </style>
   </head>
@@ -174,7 +168,7 @@
     <div id="3d-graph"></div>
     <div id="info-panel">
       <div id="close-btn">
-        <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть">
+        <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
       </div>
       <h2 id="node-name">Выберите узел</h2>
       <div id="node-details"></div>
@@ -182,23 +176,26 @@
     <div id="info-wrapper">
       <div id="settings-panel">
         <h5>Настройки</h5>
-        <label><input type="checkbox" id="display-name" /> Отображать названия узлов</label><br />
+        <label
+          ><input type="checkbox" id="display-name" checked /> Отображать
+          названия узлов</label
+        ><br />
       </div>
       <div id="settings-toggle" class="settings-btn">
-      <img src="{% static 'icons/gear-icon.svg' %}">
+        <img src="{% static 'icons/gear-icon.svg' %}" />
       </div>
     </div>
     <script type="module">
-      import * as THREE from 'https://esm.sh/three';
-      import ForceGraph3D from 'https://esm.sh/3d-force-graph';
+      import * as THREE from "https://esm.sh/three";
+      import ForceGraph3D from "https://esm.sh/3d-force-graph";
       import {
         CSS2DRenderer,
         CSS2DObject,
-      } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
+      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
 
-      const graphDataRaw = JSON.parse('{{ response|escapejs }}');
+      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
       if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
-        console.error('Некорректный JSON:', graphDataRaw);
+        console.error("Некорректный JSON:", graphDataRaw);
       } else {
         const nodes = new Map();
         const links = [];
@@ -297,28 +294,28 @@
         const highlightLinks = new Set();
         let hoverNode = null;
 
-        const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
           extraRenderers: [new CSS2DRenderer()],
         })
 
           .graphData(graphData)
-          .nodeAutoColorBy('group')
+          .nodeAutoColorBy("group")
           .nodeResolution(32)
           .nodeOpacity(0.95)
           .nodeThreeObject((node) => {
-            const nodeEl = document.createElement('div');
+            const nodeEl = document.createElement("div");
             nodeEl.textContent = node.name;
-            nodeEl.style.color = '#FFFFFF';
-            nodeEl.className = 'node-label';
+            nodeEl.style.color = "#FFFFFF";
+            nodeEl.className = "node-label";
             return new CSS2DObject(nodeEl);
           })
           .nodeThreeObjectExtend(true)
           .nodeColor((node) =>
             highlightNodes.has(node)
               ? node === hoverNode
-                ? 'red'
-                : 'orange'
-              : node.autoColor || '#cccccc'
+                ? "red"
+                : "orange"
+              : node.autoColor || "#cccccc"
           )
           .linkWidth((link) => (highlightLinks.has(link) ? 0.5 : 0.3))
           .linkDirectionalParticleResolution([32])
@@ -329,7 +326,7 @@
           .linkDirectionalArrowLength(3)
           .linkDirectionalArrowRelPos(1)
           .linkDirectionalArrowResolution(16)
-          .linkCurvature('curvature')
+          .linkCurvature("curvature")
           .onNodeHover((node) => {
             if ((!node && !highlightNodes.size) || hoverNode === node) return;
             highlightNodes.clear();
@@ -366,9 +363,9 @@
 
             Graph.cameraPosition(newPos, node, 1300);
 
-            const infoPanel = document.getElementById('info-panel');
-            const nameEl = document.getElementById('node-name');
-            const detailsEl = document.getElementById('node-details');
+            const infoPanel = document.getElementById("info-panel");
+            const nameEl = document.getElementById("node-name");
+            const detailsEl = document.getElementById("node-details");
 
             const fullData = conceptInfoMap.get(node.id);
             nameEl.textContent = node.name;
@@ -378,7 +375,7 @@
               <p><strong>ID типа концепта: </strong>${node.group}</p>
               <p><strong>Тип концепта: </strong>${node.TypeName}</p>
             `;
-            infoPanel.classList.add('active');
+            infoPanel.classList.add("active");
           });
 
         function updateHighlight() {
@@ -387,8 +384,8 @@
             .linkDirectionalParticles(Graph.linkDirectionalParticles());
         }
 
-        document.getElementById('close-btn').addEventListener('click', () => {
-          document.getElementById('info-panel').classList.remove('active');
+        document.getElementById("close-btn").addEventListener("click", () => {
+          document.getElementById("info-panel").classList.remove("active");
         });
 
         const loader = new THREE.CubeTextureLoader();
@@ -403,14 +400,17 @@
         Graph.scene().background = texture;
       }
 
-      const settingsBtn = document.getElementById('settings-toggle');
-      const settingsPanel = document.getElementById('settings-panel');
-      const infoWrapper = document.getElementById('info-wrapper');
+      const settingsBtn = document.getElementById("settings-toggle");
+      const settingsPanel = document.getElementById("settings-panel");
+      const infoWrapper = document.getElementById("info-wrapper");
 
-      settingsBtn.addEventListener('click', () => {
-        settingsBtn.classList.toggle('rotating');
-        settingsPanel.classList.toggle('active');
-
+      settingsBtn.addEventListener("click", () => {
+        settingsBtn.classList.toggle("rotating");
+        settingsPanel.classList.toggle("active");
+      });
+      const checkbox = document.getElementById("display-name");
+      checkbox.addEventListener("change", function () {
+        document.body.classList.toggle("hide-labels", !this.checked);
       });
     </script>
   </body>
