@@ -31,14 +31,19 @@
       sizes="48x48"
       href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
     />
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
     <style>
       @font-face {
         font-family: "Institut";
         src: url("{% static 'fonts/Institut.woff2' %}") format("woff2"),
           url("{% static 'fonts/Institut.woff' %}") format("woff");
       }
-
       body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+        height: 100vh;
         margin: 0;
         font-family: sans-serif;
         overflow: hidden;
@@ -50,6 +55,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
+        z-index: 500;
       }
 
       #info-panel {
@@ -64,7 +70,7 @@
         transition: transform 0.3s ease-in-out;
         padding: 20px;
         overflow-y: auto;
-        z-index: 100;
+        z-index: 500;
         border-top-left-radius: 8px;
         border-bottom-left-radius: 8px;
       }
@@ -76,7 +82,7 @@
         position: absolute;
         top: 16px;
         right: 20px;
-        z-index: 100;
+        z-index: 500;
         display: flex;
         align-items: flex-start;
         gap: 10px;
@@ -134,6 +140,7 @@
         color: #035ba9;
         white-space: nowrap;
         word-break: keep-all;
+        z-index: 500;
       }
 
       .acss-lzfym0 {
@@ -142,7 +149,7 @@
         top: 16px;
         left: 24px;
         height: 32px;
-        z-index: 100;
+        z-index: 500;
       }
       .node-label {
         font-size: 12px;
@@ -158,6 +165,21 @@
     </style>
   </head>
   <body>
+  <div class="loader-container">
+      <svg
+        class="logo"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 28 28"
+        fill="none"
+      >
+        <rect width="28" height="28" rx="2" fill="#035BA9" />
+        <path
+          d="M20.9809 5.03992H7.01853L6.71973 5.32768V8.67624L7.01853 8.96401H11.8538V22.6721L12.1526 22.9599H15.8197L16.1185 22.6721V8.96401H20.9809L21.2797 8.67624V5.32768L20.9809 5.03992Z"
+          fill="white"
+        />
+      </svg>
+    </div>
+  <main style="visibility: hidden">
     <div class="acss-lzfym0">
       <img
         src="data:image/svg+xml;base64,PHN2ZwogIHdpZHRoPSIyOCIKICBoZWlnaHQ9IjI4IgogIHZpZXdCb3g9IjAgMCAyOCAyOCIKICBmaWxsPSJub25lIgogIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKPgogIDxyZWN0IHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgcng9IjIiIGZpbGw9IiMwMzVCQTkiIC8+CiAgPHBhdGgKICAgIGQ9Ik0yMC45ODA5IDUuMDM5OTJINy4wMTg1M0w2LjcxOTczIDUuMzI3NjhWOC42NzYyNEw3LjAxODUzIDguOTY0MDFIMTEuODUzOFYyMi42NzIxTDEyLjE1MjYgMjIuOTU5OUgxNS44MTk3TDE2LjExODUgMjIuNjcyMVY4Ljk2NDAxSDIwLjk4MDlMMjEuMjc5NyA4LjY3NjI0VjUuMzI3NjhMMjAuOTgwOSA1LjAzOTkyWiIKICAgIGZpbGw9IndoaXRlIgogIC8+Cjwvc3ZnPgo="
@@ -185,6 +207,16 @@
         <img src="{% static 'icons/gear-icon.svg' %}" />
       </div>
     </div>
+  </main>
+  <script>
+      // Скрыть лоадер только после полной загрузки страницы
+      window.onload = function () {
+        // Скрыть лоадер
+        document.querySelector(".loader-container").style.display = "none";
+        // Сделать основной контент видимым
+        document.querySelector("main").style.visibility = "visible";
+      };
+    </script>
     <script type="module">
       import * as THREE from "https://esm.sh/three";
       import ForceGraph3D from "https://esm.sh/3d-force-graph";
