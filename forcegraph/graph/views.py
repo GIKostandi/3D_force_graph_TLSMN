@@ -1,8 +1,9 @@
 import json
-from django.shortcuts import render
+import re
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
 from .models import Stands
-from requests.exceptions import HTTPError
 from graphql import GraphQLError
 
 realm = "core"
@@ -11,7 +12,6 @@ client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
 
 def auth_view(request):
     stands = Stands.objects.all()
-    error_message = None
 
     if request.method == "POST":
         stand_name = request.POST.get("stand")
@@ -37,7 +37,7 @@ def auth_view(request):
                   researchMap(id: "{research_map}") {{
                     id
                     name
-                    paginationConcept(extraSettings: {{searchOnMap: true}}) {{
+                    paginationConcept(extraSettings: {{ searchOnMap: true }}) {{
                       listConcept {{
                         id
                         name
@@ -45,26 +45,115 @@ def auth_view(request):
                           id
                           name
                         }}
+                        paginationConceptProperty(filterSettings: {{ status: approved }}) {{
+                          listConceptProperty {{
+                            propertyType {{
+                              id
+                              name
+                            }}
+                            value {{
+                              __typename
+                              ... on CompositeValue {{
+                                listValue {{
+                                  propertyValueType {{
+                                    id
+                                  }}
+                                  value {{
+                                    __typename
+                                    ... on DateTimeValue {{
+                                      date {{
+                                        day
+                                        month
+                                        year
+                                      }}
+                                      time {{
+                                        hour
+                                        minute
+                                        second
+                                      }}
+                                    }}
+                                    ... on DoubleValue {{
+                                      floatValue: value
+                                    }}
+                                    ... on GeoPointValue {{
+                                      name
+                                      point {{
+                                        latitude
+                                        longitude
+                                      }}
+                                    }}
+                                    ... on IntValue {{
+                                      intValue: value
+                                    }}
+                                    ... on LinkValue {{
+                                      linkValue: link
+                                    }}
+                                    ... on StringLocaleValue {{
+                                      stringLocaleValue: value
+                                      locale
+                                    }}
+                                    ... on StringValue {{
+                                      stringValue: value
+                                    }}
+                                    ... on TimestampValue {{
+                                      timestampValue: value
+                                    }}
+                                  }}
+                                }}
+                              }}
+                              ... on DateTimeValue {{
+                                date {{
+                                  day
+                                  month
+                                  year
+                                }}
+                                time {{
+                                  hour
+                                  minute
+                                  second
+                                }}
+                              }}
+                              ... on DoubleValue {{
+                                floatValue: value
+                              }}
+                              ... on GeoPointValue {{
+                                name
+                                point {{
+                                  latitude
+                                  longitude
+                                }}
+                              }}
+                              ... on IntValue {{
+                                intValue: value
+                              }}
+                              ... on LinkValue {{
+                                linkValue: link
+                              }}
+                              ... on StringLocaleValue {{
+                                stringLocaleValue: value
+                                locale
+                              }}
+                              ... on StringValue {{
+                                stringValue: value
+                              }}
+                              ... on TimestampValue {{
+                                timestampValue: value
+                              }}
+                            }}
+                          }}
+                        }}
                         paginationConceptLink(filterSettings: {{}}) {{
                           listConceptLink {{
                             from {{
                               ... on Concept {{
                                 id
                                 name
-                                conceptType {{
-                                  name
-                                  id
-                                }}
                               }}
                             }}
                             to {{
                               ... on Concept {{
                                 id
                                 name
-                                conceptType {{
-                                  name
-                                  id
-                                }}
                               }}
                             }}
                             conceptLinkType {{
@@ -78,24 +167,73 @@ def auth_view(request):
                   }}
                 }}
                 """
-
                 response = gql_client.execute(query)
 
-                with open("response.json", "w", encoding="utf-8") as file:
-                    json.dump(response, file, indent=4, ensure_ascii=False)
+                # Проверка на специфические сообщения об ошибке
+                def find_message(obj, targets):
+                    if isinstance(obj, dict):
+                        for k, v in obj.items():
+                            if k == "message" and v in targets:
+                                return v
+                            result = find_message(v, targets)
+                            if result:
+                                return result
+                    elif isinstance(obj, list):
+                        for item in obj:
+                            result = find_message(item, targets)
+                            if result:
+                                return result
+                    return None
+
+                error_type = find_message(response, {"ResearchMap.NotFound", "ID.UnexpectedError"})
+                if error_type:
+                    if error_type == "ResearchMap.NotFound":
+                        messages.error(request, "Исследовательская карта не найдена.")
+                    elif error_type == "ID.UnexpectedError":
+                        messages.error(request, "Произошла ошибка при обработке Идентификатора ИК.")
+                    return redirect("auth_view")
 
                 return render(request, "3d_graph.html", {"response": json.dumps(response)})
 
         except Stands.DoesNotExist:
-            error_message = "Указанный стенд не найден."
-        except HTTPError as e:
-            error_message = f"Ошибка авторизации: {e.response.status_code} - {e.response.reason}"
+            messages.error(request, "Указанный стенд не найден.")
+            return redirect("auth_view")
+
         except GraphQLError as e:
-            error_message = f"Ошибка GraphQL: {str(e)}"
+            messages.error(request, f"Ошибка GraphQL: {str(e)}")
+            return redirect("auth_view")
+
         except Exception as e:
-            error_message = f"Произошла непредвиденная ошибка: {str(e)}"
+            error_text = str(e)
+            match = re.search(r"\{.*\}", error_text)
+            if match:
+                try:
+                    error_json = json.loads(match.group())
+                    if error_json.get("error") == "invalid_grant":
+                        messages.error(request, "Неверный логин или пароль.")
+                    else:
+                        desc = error_json.get("error_description", "неизвестная причина")
+                        messages.error(request, f"Ошибка авторизации: {desc}")
+                except json.JSONDecodeError:
+                    if "401" in error_text:
+                        messages.error(request, "Неверный логин или пароль.")
+                    elif "403" in error_text:
+                        messages.error(request, "Доступ запрещён.")
+                    else:
+                        messages.error(request, f"Произошла ошибка: {error_text}")
+            else:
+                if "401" in error_text:
+                    messages.error(request, "Неверный логин или пароль.")
+                elif "403" in error_text:
+                    messages.error(request, "Доступ запрещён.")
+                elif "404" in error_text:
+                    messages.error(request, "Сервис не найден.")
+                elif "500" in error_text:
+                    messages.error(request, "Внутренняя ошибка сервера.")
+                else:
+                    messages.error(request, f"Произошла непредвиденная ошибка: {error_text}")
+            return redirect("auth_view")
 
     return render(request, "auth_form.html", {
-        "stands": stands,
-        "error": error_message
+        "stands": stands
     })

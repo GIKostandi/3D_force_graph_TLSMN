@@ -31,12 +31,12 @@
       sizes="48x48"
       href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
     />
-    <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
     <style>
       @font-face {
-        font-family: "Institut";
-        src: url("{% static 'fonts/Institut.woff2' %}") format("woff2"),
-          url("{% static 'fonts/Institut.woff' %}") format("woff");
+        font-family: 'Institut';
+        src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
+          url("{% static 'fonts/Institut.woff' %}") format('woff');
       }
       body {
         display: flex;
@@ -134,7 +134,7 @@
 
       .acss-12ade3v {
         margin-left: 10px;
-        font-family: "Institut", sans-serif;
+        font-family: 'Institut', sans-serif;
         font-size: 20px;
         line-height: 32px;
         color: #035ba9;
@@ -165,7 +165,7 @@
     </style>
   </head>
   <body>
-  <div class="loader-container">
+    <div class="loader-container">
       <svg
         class="logo"
         xmlns="http://www.w3.org/2000/svg"
@@ -179,56 +179,83 @@
         />
       </svg>
     </div>
-  <main style="visibility: hidden">
-    <div class="acss-lzfym0">
-      <img
-        src="data:image/svg+xml;base64,PHN2ZwogIHdpZHRoPSIyOCIKICBoZWlnaHQ9IjI4IgogIHZpZXdCb3g9IjAgMCAyOCAyOCIKICBmaWxsPSJub25lIgogIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKPgogIDxyZWN0IHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgcng9IjIiIGZpbGw9IiMwMzVCQTkiIC8+CiAgPHBhdGgKICAgIGQ9Ik0yMC45ODA5IDUuMDM5OTJINy4wMTg1M0w2LjcxOTczIDUuMzI3NjhWOC42NzYyNEw3LjAxODUzIDguOTY0MDFIMTEuODUzOFYyMi42NzIxTDEyLjE1MjYgMjIuOTU5OUgxNS44MTk3TDE2LjExODUgMjIuNjcyMVY4Ljk2NDAxSDIwLjk4MDlMMjEuMjc5NyA4LjY3NjI0VjUuMzI3NjhMMjAuOTgwOSA1LjAzOTkyWiIKICAgIGZpbGw9IndoaXRlIgogIC8+Cjwvc3ZnPgo="
-        alt="logo"
-      />
-      <div class="acss-12ade3v">3D-GRAPH</div>
-    </div>
-    <div id="3d-graph"></div>
-    <div id="info-panel">
-      <div id="close-btn">
-        <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
+    <main style="visibility: hidden">
+      <div class="acss-lzfym0">
+        <img
+          src="data:image/svg+xml;base64,PHN2ZwogIHdpZHRoPSIyOCIKICBoZWlnaHQ9IjI4IgogIHZpZXdCb3g9IjAgMCAyOCAyOCIKICBmaWxsPSJub25lIgogIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKPgogIDxyZWN0IHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgcng9IjIiIGZpbGw9IiMwMzVCQTkiIC8+CiAgPHBhdGgKICAgIGQ9Ik0yMC45ODA5IDUuMDM5OTJINy4wMTg1M0w2LjcxOTczIDUuMzI3NjhWOC42NzYyNEw3LjAxODUzIDguOTY0MDFIMTEuODUzOFYyMi42NzIxTDEyLjE1MjYgMjIuOTU5OUgxNS44MTk3TDE2LjExODUgMjIuNjcyMVY4Ljk2NDAxSDIwLjk4MDlMMjEuMjc5NyA4LjY3NjI0VjUuMzI3NjhMMjAuOTgwOSA1LjAzOTkyWiIKICAgIGZpbGw9IndoaXRlIgogIC8+Cjwvc3ZnPgo="
+          alt="logo"
+        />
+        <div class="acss-12ade3v">3D-GRAPH</div>
       </div>
-      <h2 id="node-name">Выберите узел</h2>
-      <div id="node-details"></div>
-    </div>
-    <div id="info-wrapper">
-      <div id="settings-panel">
-        <h5>Настройки</h5>
-        <label
-          ><input type="checkbox" id="display-name" checked /> Отображать
-          названия узлов</label
-        ><br />
+      <div id="3d-graph"></div>
+      <div id="info-panel">
+        <div id="close-btn">
+          <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
+        </div>
+        <h2 id="node-name">Выберите узел</h2>
+        <div id="node-details"></div>
       </div>
-      <div id="settings-toggle" class="settings-btn">
-        <img src="{% static 'icons/gear-icon.svg' %}" />
+      <div id="info-wrapper">
+        <div id="settings-panel">
+          <h5>Настройки</h5>
+          <label
+            ><input type="checkbox" id="display-name" checked /> Отображать
+            названия узлов</label
+          ><br />
+        </div>
+        <div id="settings-toggle" class="settings-btn">
+          <img src="{% static 'icons/gear-icon.svg' %}" />
+        </div>
       </div>
-    </div>
-  </main>
-  <script>
-      // Скрыть лоадер только после полной загрузки страницы
+    </main>
+    <script>
       window.onload = function () {
-        // Скрыть лоадер
-        document.querySelector(".loader-container").style.display = "none";
-        // Сделать основной контент видимым
-        document.querySelector("main").style.visibility = "visible";
+        document.querySelector('.loader-container').style.display = 'none';
+        document.querySelector('main').style.visibility = 'visible';
       };
     </script>
     <script type="module">
-      import * as THREE from "https://esm.sh/three";
-      import ForceGraph3D from "https://esm.sh/3d-force-graph";
+      import * as THREE from 'https://esm.sh/three';
+      import ForceGraph3D from 'https://esm.sh/3d-force-graph';
       import {
         CSS2DRenderer,
         CSS2DObject,
-      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
+      } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
 
-      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
+      const graphDataRaw = JSON.parse('{{ response|escapejs }}');
       if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
-        console.error("Некорректный JSON:", graphDataRaw);
+        console.error('Некорректный JSON:', graphDataRaw);
       } else {
+        function extractValue(valueObj) {
+          if (!valueObj) return null;
+          switch (valueObj.__typename) {
+            case 'StringValue':
+              return valueObj.stringValue;
+            case 'StringLocaleValue':
+              return valueObj.stringLocaleValue;
+            case 'IntValue':
+              return valueObj.intValue;
+            case 'DoubleValue':
+              return valueObj.floatValue;
+            case 'TimestampValue':
+              return valueObj.timestampValue;
+            case 'LinkValue':
+              return valueObj.linkValue?.name || valueObj.linkValue?.id;
+            case 'GeoPointValue':
+              return {
+                name: valueObj.name,
+                point: valueObj.point,
+              };
+            case 'DateTimeValue':
+              return {
+                date: valueObj.date,
+                time: valueObj.time,
+              };
+            default:
+              return null;
+          }
+        }
+
         const nodes = new Map();
         const links = [];
         const validNodeIds = new Set();
@@ -244,11 +271,48 @@
             validNodeIds.add(conceptId);
             conceptInfoMap.set(conceptId, concept);
 
+            // Собираем properties
+            const properties = {};
+            if (concept.paginationConceptProperty) {
+              concept.paginationConceptProperty.listConceptProperty.forEach(
+                (prop) => {
+                  const propName = prop.propertyType?.name;
+                  const propValueRaw = prop.value;
+
+                  let value;
+                  if (
+                    propValueRaw?.__typename === 'CompositeValue' &&
+                    propValueRaw.listValue
+                  ) {
+                    value = propValueRaw.listValue.map((v) =>
+                      extractValue(v.value)
+                    );
+                  } else {
+                    value = extractValue(propValueRaw);
+                  }
+
+                  if (propName) {
+                    if (!properties[propName]) {
+                      properties[propName] = [];
+                    }
+
+                    // value может быть массивом (если CompositeValue), или одним значением
+                    if (Array.isArray(value)) {
+                      properties[propName].push(...value);
+                    } else {
+                      properties[propName].push(value);
+                    }
+                  }
+                }
+              );
+            }
+
             nodes.set(conceptId, {
               id: conceptId,
               name: conceptName,
               group: conceptTypeId,
               TypeName: conceptTypeName,
+              properties: properties,
             });
           }
         );
@@ -289,7 +353,6 @@
           groupedLinks.get(key).push(link);
         });
 
-        // Назначаем кривизну для каждой связи (если их несколько между двумя узлами)
         groupedLinks.forEach((linkGroup) => {
           const total = linkGroup.length;
           linkGroup.forEach((link, index) => {
@@ -326,7 +389,7 @@
         const highlightLinks = new Set();
         let hoverNode = null;
 
-        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
+        const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
           extraRenderers: [new CSS2DRenderer()],
         })
 
@@ -336,19 +399,19 @@
           .nodeOpacity(0.95)
           .nodeLabel('name')
           .nodeThreeObject((node) => {
-            const nodeEl = document.createElement("div");
+            const nodeEl = document.createElement('div');
             nodeEl.textContent = node.name;
-            nodeEl.style.color = "#FFFFFF";
-            nodeEl.className = "node-label";
+            nodeEl.style.color = '#FFFFFF';
+            nodeEl.className = 'node-label';
             return new CSS2DObject(nodeEl);
           })
           .nodeThreeObjectExtend(true)
           .nodeColor((node) =>
             highlightNodes.has(node)
               ? node === hoverNode
-                ? "red"
-                : "orange"
-              : node.autoColor || "#cccccc"
+                ? 'red'
+                : 'orange'
+              : node.autoColor || '#cccccc'
           )
           .linkWidth((link) => (highlightLinks.has(link) ? 0.5 : 0.3))
           .linkDirectionalParticleResolution([32])
@@ -359,7 +422,7 @@
           .linkDirectionalArrowLength(3)
           .linkDirectionalArrowRelPos(1)
           .linkDirectionalArrowResolution(16)
-          .linkCurvature("curvature")
+          .linkCurvature('curvature')
           .onNodeHover((node) => {
             if ((!node && !highlightNodes.size) || hoverNode === node) return;
             highlightNodes.clear();
@@ -396,19 +459,65 @@
 
             Graph.cameraPosition(newPos, node, 1100);
 
-            const infoPanel = document.getElementById("info-panel");
-            const nameEl = document.getElementById("node-name");
-            const detailsEl = document.getElementById("node-details");
+            const infoPanel = document.getElementById('info-panel');
+            const nameEl = document.getElementById('node-name');
+            const detailsEl = document.getElementById('node-details');
 
-            const fullData = conceptInfoMap.get(node.id);
             nameEl.textContent = node.name;
+
+            const formatDate = (val) => {
+              if (!val?.date) return null;
+              const { day, month, year } = val.date;
+              if (day && month && year) {
+                const dd = String(day).padStart(2, '0');
+                const mm = String(month).padStart(2, '0');
+                return `${dd}.${mm}.${year}`;
+              }
+              return null;
+            };
+
+            const formatValue = (val) => {
+              if (!val || val === null) return null;
+
+              if (val?.date) return formatDate(val);
+              if (typeof val === 'object')
+                return (
+                  val.name ||
+                  val.stringValue ||
+                  val.stringLocaleValue ||
+                  val.linkValue?.name ||
+                  JSON.stringify(val)
+                );
+              return val;
+            };
+
+            const propEntries = Object.entries(node.properties || {})
+              .map(([key, val]) => {
+                if (val == null) return '';
+
+                let displayVal = '';
+                if (Array.isArray(val)) {
+                  const values = val.map(formatValue).filter(Boolean);
+                  displayVal = values.join(', ');
+                } else {
+                  displayVal = formatValue(val);
+                }
+
+                return displayVal
+                  ? `<p><strong>${key}:</strong> ${displayVal}</p>`
+                  : '';
+              })
+              .filter(Boolean)
+              .join('');
+
             detailsEl.innerHTML = `
-              <p><strong>ID:</strong> ${node.id}</p>
-              <p><strong>Название:</strong> ${node.name}</p>
-              <p><strong>ID типа концепта: </strong>${node.group}</p>
-              <p><strong>Тип концепта: </strong>${node.TypeName}</p>
-            `;
-            infoPanel.classList.add("active");
+    <p><strong>ID:</strong> ${node.id}</p>
+    <p><strong>ID типа концепта:</strong> ${node.group}</p>
+    <p><strong>Тип концепта:</strong> ${node.TypeName}</p>
+    <p><strong>Характеристики:</strong>${propEntries}</p>
+  `;
+
+            infoPanel.classList.add('active');
           });
 
         function updateHighlight() {
@@ -417,8 +526,8 @@
             .linkDirectionalParticles(Graph.linkDirectionalParticles());
         }
 
-        document.getElementById("close-btn").addEventListener("click", () => {
-          document.getElementById("info-panel").classList.remove("active");
+        document.getElementById('close-btn').addEventListener('click', () => {
+          document.getElementById('info-panel').classList.remove('active');
         });
 
         const loader = new THREE.CubeTextureLoader();
@@ -433,17 +542,17 @@
         Graph.scene().background = texture;
       }
 
-      const settingsBtn = document.getElementById("settings-toggle");
-      const settingsPanel = document.getElementById("settings-panel");
-      const infoWrapper = document.getElementById("info-wrapper");
+      const settingsBtn = document.getElementById('settings-toggle');
+      const settingsPanel = document.getElementById('settings-panel');
+      const infoWrapper = document.getElementById('info-wrapper');
 
-      settingsBtn.addEventListener("click", () => {
-        settingsBtn.classList.toggle("rotating");
-        settingsPanel.classList.toggle("active");
+      settingsBtn.addEventListener('click', () => {
+        settingsBtn.classList.toggle('rotating');
+        settingsPanel.classList.toggle('active');
       });
-      const checkbox = document.getElementById("display-name");
-      checkbox.addEventListener("change", function () {
-        document.body.classList.toggle("hide-labels", !this.checked);
+      const checkbox = document.getElementById('display-name');
+      checkbox.addEventListener('change', function () {
+        document.body.classList.toggle('hide-labels', !this.checked);
       });
     </script>
   </body>
