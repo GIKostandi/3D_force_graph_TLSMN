@@ -162,37 +162,6 @@
       body.hide-labels .node-label {
         display: none;
       }
-      #legend {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        background: rgba(255, 255, 255, 0.85);
-        border-radius: 8px;
-        padding: 10px 15px;
-        max-width: 250px;
-        max-height: 150px;
-        overflow-y: auto;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        font-family: 'Institut', sans-serif, sans-serif;
-        font-size: 14px;
-        color: #222;
-        z-index: 600;
-      }
-
-      .legend-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-      }
-
-      .legend-color {
-        width: 18px;
-        height: 18px;
-        border-radius: 3px;
-        margin-right: 10px;
-        flex-shrink: 0;
-        border: 1px solid #ccc;
-      }
     </style>
   </head>
   <body>
@@ -238,7 +207,6 @@
           <img src="{% static 'icons/gear-icon.svg' %}" />
         </div>
       </div>
-      <div id="legend"></div>
     </main>
     <script>
       window.onload = function () {
@@ -297,6 +265,7 @@
           (concept) => {
             const conceptId = concept.id;
             const conceptName = concept.name;
+            const conceptImage = concept.image;
             const conceptTypeId = concept.conceptType?.id;
             const conceptTypeName = concept.conceptType?.name;
 
@@ -342,6 +311,7 @@
             nodes.set(conceptId, {
               id: conceptId,
               name: conceptName,
+              image: conceptImage,
               group: conceptTypeId,
               TypeName: conceptTypeName,
               properties: properties,
@@ -536,13 +506,19 @@
               })
               .filter(Boolean)
               .join('');
+            let imageHtml = '';
+            if (node.image?.thumbnail) {
+              const fullImageUrl = '{{ stand_url }}' + node.image.thumbnail;
+              imageHtml = `<img src="${fullImageUrl}" alt="Thumbnail" style="max-width:100%;margin-bottom:10px;border-radius:8px;" />`;
+            }
 
             detailsEl.innerHTML = `
-      <p><strong>ID:</strong> ${node.id}</p>
-      <p><strong>ID типа концепта:</strong> ${node.group}</p>
-      <p><strong>Тип концепта:</strong> ${node.TypeName}</p>
-      <p><strong>Характеристики:</strong>${propEntries}</p>
-    `;
+  ${imageHtml}
+  <p><strong>ID:</strong> ${node.id}</p>
+  <p><strong>ID типа концепта:</strong> ${node.group}</p>
+  <p><strong>Тип концепта:</strong> ${node.TypeName}</p>
+  <p><strong>Характеристики:</strong>${propEntries}</p>
+`;
 
             infoPanel.classList.add('active');
           });

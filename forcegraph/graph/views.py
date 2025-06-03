@@ -21,6 +21,7 @@ def auth_view(request):
 
         try:
             stand = Stands.objects.get(stand=stand_name)
+            stand_url = stand.stand_url
             graphql_url = stand.graphql_url
             keycloak_auth_url = stand.auth_url
 
@@ -31,7 +32,6 @@ def auth_view(request):
                 user=username, pwd=password,
                 client_secret=client_key
             ) as gql_client:
-
                 query = f"""
                 query MyQuery {{
                   researchMap(id: "{research_map}") {{
@@ -41,6 +41,9 @@ def auth_view(request):
                       listConcept {{
                         id
                         name
+                        image {{
+                            thumbnail
+                        }}
                         conceptType {{
                           id
                           name
@@ -193,7 +196,7 @@ def auth_view(request):
                         messages.error(request, "Произошла ошибка при обработке Идентификатора ИК.")
                     return redirect("auth_view")
 
-                return render(request, "3d_graph.html", {"response": json.dumps(response)})
+                return render(request, "3d_graph.html", {"response": json.dumps(response), "stand_url": stand_url})
 
         except Stands.DoesNotExist:
             messages.error(request, "Указанный стенд не найден.")
