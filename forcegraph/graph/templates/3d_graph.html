@@ -32,12 +32,17 @@
       href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
     />
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
+      rel="stylesheet"
+    />
     <style>
       @font-face {
-        font-family: 'Institut';
-        src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
-          url("{% static 'fonts/Institut.woff' %}") format('woff');
+        font-family: "Institut";
+        src: url("{% static 'fonts/Institut.woff2' %}") format("woff2"),
+          url("{% static 'fonts/Institut.woff' %}") format("woff");
       }
+      @import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
       body {
         display: flex;
         justify-content: center;
@@ -68,7 +73,6 @@
         opacity: 95%;
         transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
-        padding: 20px;
         overflow-y: auto;
         z-index: 500;
         border-top-left-radius: 8px;
@@ -94,7 +98,46 @@
       #info-panel.active ~ #info-wrapper {
         transform: translateX(-400px);
       }
+      #node-name {
+        font-family: "Inter", sans-serif;
+        font-weight: 400; /* Regular */
+        font-size: 18px;
+        color: #035ba9;
+        margin-bottom: 17px;
+        margin-left: 40px;
+        margin-top: 30px;
+      }
 
+      #node-details .nodetype {
+        font-family: "Inter", sans-serif;
+        font-weight: 400; /* Regular */
+        font-size: 14px;
+        margin-top: 6px;
+        color: #000000;
+        padding-bottom: 8px;
+        margin-left: 40px;
+      }
+      #node-details .nodetypename {
+        color: #035ba9;
+      }
+
+      #node-details img {
+        display: block;
+        width: 150px;
+        border-radius: 8px;
+        margin-left: 40px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      #node-details .properties {
+        border: 1px solid #dcdcdc;
+      }
+      #node-details .properties-name,
+      .properties-value {
+        font-family: "Inter", sans-serif;
+        font-weight: 400; /* Regular */
+        font-size: 18px;
+        color: #000000;
+      }
       .settings-btn {
         pointer-events: auto;
         cursor: pointer;
@@ -134,7 +177,7 @@
 
       .acss-12ade3v {
         margin-left: 10px;
-        font-family: 'Institut', sans-serif;
+        font-family: "Institut", sans-serif;
         font-size: 20px;
         line-height: 32px;
         color: #035ba9;
@@ -161,6 +204,47 @@
       }
       body.hide-labels .node-label {
         display: none;
+      }
+      .hidden {
+        display: none;
+      }
+      .properties-name {
+        margin-bottom: 0px;
+      }
+
+      .properties-header {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        gap: 8px;
+        border: 1px solid #dcdcdc;
+      }
+      .properties-value {
+        border-left: 1px solid #dcdcdc;
+        border-bottom: 1px solid #dcdcdc;
+        border-right: 1px solid #dcdcdc;
+      }
+
+      .properties-value.hidden {
+        display: none;
+      }
+
+      .toggle-icon {
+        transition: transform 0.1s ease;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        margin-left: 14px;
+      }
+
+      .toggle-icon.rotate {
+        transform: rotate(180deg);
+      }
+      .vertical-line.hidden {
+        display: none;
+      }
+      .toggle-all {
+        cursor: pointer;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -189,10 +273,10 @@
       </div>
       <div id="3d-graph"></div>
       <div id="info-panel">
+        <div><h2 id="node-name">Выберите узел</h2></div>
         <div id="close-btn">
           <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
         </div>
-        <h2 id="node-name">Выберите узел</h2>
         <div id="node-details"></div>
       </div>
       <div id="info-wrapper">
@@ -210,43 +294,43 @@
     </main>
     <script>
       window.onload = function () {
-        document.querySelector('.loader-container').style.display = 'none';
-        document.querySelector('main').style.visibility = 'visible';
+        document.querySelector(".loader-container").style.display = "none";
+        document.querySelector("main").style.visibility = "visible";
       };
     </script>
     <script type="module">
-      import * as THREE from 'https://esm.sh/three';
-      import ForceGraph3D from 'https://esm.sh/3d-force-graph';
+      import * as THREE from "https://esm.sh/three";
+      import ForceGraph3D from "https://esm.sh/3d-force-graph";
       import {
         CSS2DRenderer,
         CSS2DObject,
-      } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
-
-      const graphDataRaw = JSON.parse('{{ response|escapejs }}');
+      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
+      const fallbackSvgUrl = "{% static 'img/fallback.svg' %}";
+      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
       if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
-        console.error('Некорректный JSON:', graphDataRaw);
+        console.error("Некорректный JSON:", graphDataRaw);
       } else {
         function extractValue(valueObj) {
           if (!valueObj) return null;
           switch (valueObj.__typename) {
-            case 'StringValue':
+            case "StringValue":
               return valueObj.stringValue;
-            case 'StringLocaleValue':
+            case "StringLocaleValue":
               return valueObj.stringLocaleValue;
-            case 'IntValue':
+            case "IntValue":
               return valueObj.intValue;
-            case 'DoubleValue':
+            case "DoubleValue":
               return valueObj.floatValue;
-            case 'TimestampValue':
+            case "TimestampValue":
               return valueObj.timestampValue;
-            case 'LinkValue':
+            case "LinkValue":
               return valueObj.linkValue?.name || valueObj.linkValue?.id;
-            case 'GeoPointValue':
+            case "GeoPointValue":
               return {
                 name: valueObj.name,
                 point: valueObj.point,
               };
-            case 'DateTimeValue':
+            case "DateTimeValue":
               return {
                 date: valueObj.date,
                 time: valueObj.time,
@@ -282,7 +366,7 @@
 
                   let value;
                   if (
-                    propValueRaw?.__typename === 'CompositeValue' &&
+                    propValueRaw?.__typename === "CompositeValue" &&
                     propValueRaw.listValue
                   ) {
                     value = propValueRaw.listValue.map((v) =>
@@ -297,7 +381,6 @@
                       properties[propName] = [];
                     }
 
-                    // value может быть массивом (если CompositeValue), или одним значением
                     if (Array.isArray(value)) {
                       properties[propName].push(...value);
                     } else {
@@ -371,7 +454,6 @@
           links: links,
         };
 
-        // Связи узлов
         graphData.links.forEach((link) => {
           const a = graphData.nodes.find((n) => n.id === link.source);
           const b = graphData.nodes.find((n) => n.id === link.target);
@@ -390,19 +472,19 @@
         const highlightLinks = new Set();
         let hoverNode = null;
 
-        const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
           extraRenderers: [new CSS2DRenderer()],
         })
           .graphData(graphData)
-          .nodeAutoColorBy('group') // генерируем цвета на основе группы
+          .nodeAutoColorBy("group")
           .nodeResolution(32)
           .nodeOpacity(0.95)
-          .nodeLabel('name')
+          .nodeLabel("name")
           .nodeThreeObject((node) => {
-            const nodeEl = document.createElement('div');
+            const nodeEl = document.createElement("div");
             nodeEl.textContent = node.name;
-            nodeEl.style.color = '#FFFFFF';
-            nodeEl.className = 'node-label';
+            nodeEl.style.color = "#FFFFFF";
+            nodeEl.className = "node-label";
             return new CSS2DObject(nodeEl);
           })
           .nodeThreeObjectExtend(true)
@@ -416,7 +498,7 @@
           .linkDirectionalArrowLength(3)
           .linkDirectionalArrowRelPos(1)
           .linkDirectionalArrowResolution(16)
-          .linkCurvature('curvature')
+          .linkCurvature("curvature")
 
           .onNodeHover((node) => {
             if ((!node && !highlightNodes.size) || hoverNode === node) return;
@@ -456,9 +538,9 @@
 
             Graph.cameraPosition(newPos, node, 1100);
 
-            const infoPanel = document.getElementById('info-panel');
-            const nameEl = document.getElementById('node-name');
-            const detailsEl = document.getElementById('node-details');
+            const infoPanel = document.getElementById("info-panel");
+            const nameEl = document.getElementById("node-name");
+            const detailsEl = document.getElementById("node-details");
 
             nameEl.textContent = node.name;
 
@@ -466,8 +548,8 @@
               if (!val?.date) return null;
               const { day, month, year } = val.date;
               if (day && month && year) {
-                const dd = String(day).padStart(2, '0');
-                const mm = String(month).padStart(2, '0');
+                const dd = String(day).padStart(2, "0");
+                const mm = String(month).padStart(2, "0");
                 return `${dd}.${mm}.${year}`;
               }
               return null;
@@ -477,7 +559,7 @@
               if (!val || val === null) return null;
 
               if (val?.date) return formatDate(val);
-              if (typeof val === 'object')
+              if (typeof val === "object")
                 return (
                   val.name ||
                   val.stringValue ||
@@ -490,47 +572,66 @@
 
             const propEntries = Object.entries(node.properties || {})
               .map(([key, val]) => {
-                if (val == null) return '';
+                if (val == null) return "";
 
-                let displayVal = '';
+                let displayVal = "";
                 if (Array.isArray(val)) {
                   const values = val.map(formatValue).filter(Boolean);
-                  displayVal = values.join(', ');
+                  displayVal = values.join(", ");
                 } else {
                   displayVal = formatValue(val);
                 }
 
                 return displayVal
-                  ? `<p><strong>${key}:</strong> ${displayVal}</p>`
-                  : '';
+                  ? `<div class="properties">
+  <div class="properties-header">
+    <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+<path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+    <p class="properties-name">${key}</p>
+  </div>
+  <div class="properties-value hidden">${displayVal}</div>
+</div>`
+                  : "";
               })
               .filter(Boolean)
-              .join('');
-            let imageHtml = '';
+              .join("");
+            let imageHtml = "";
             if (node.image?.thumbnail) {
-              const fullImageUrl = '{{ stand_url }}' + node.image.thumbnail;
-              imageHtml = `<img src="${fullImageUrl}" alt="Thumbnail" style="max-width:100%;margin-bottom:10px;border-radius:8px;" />`;
+              const fullImageUrl = "{{ stand_url }}" + node.image.thumbnail;
+              imageHtml = `<img
+    src="${fullImageUrl}"
+    alt="Thumbnail"
+    onerror="this.onerror=null; this.src='${fallbackSvgUrl}'"
+  />`;
+            } else {
+              imageHtml = `<img
+    src="${fallbackSvgUrl}"
+    alt="Fallback SVG"
+  />`;
             }
 
             detailsEl.innerHTML = `
   ${imageHtml}
-  <p><strong>ID:</strong> ${node.id}</p>
-  <p><strong>ID типа концепта:</strong> ${node.group}</p>
-  <p><strong>Тип концепта:</strong> ${node.TypeName}</p>
-  <p><strong>Характеристики:</strong>${propEntries}</p>
+  <div class="nodetype"><p>Тип концепта</strong></p><p class="nodetypename">${node.TypeName}</p></div>
+  <div><div> <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+<path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><p class="toggle-all">Характеристики</p><div class="properties-container">${propEntries}</div></div></div>
 `;
-
-            infoPanel.classList.add('active');
+            infoPanel.classList.add("active");
           });
-        // Обновление при hover
         function updateHighlight() {
           Graph.nodeColor((node) => {
             if (highlightNodes.has(node)) {
               return node === hoverNode
-                ? 'rgba(255,0,0,1)'
-                : 'rgba(255,160,0,0.8)';
+                ? "rgba(255,0,0,1)"
+                : "rgba(255,160,0,0.8)";
             }
-            return node.color || 'rgba(0,255,255,0.6)';
+            return node.color || "rgba(0,255,255,0.6)";
           });
 
           Graph.linkWidth((link) => (highlightLinks.has(link) ? 0.5 : 0.3));
@@ -539,8 +640,8 @@
           );
         }
 
-        document.getElementById('close-btn').addEventListener('click', () => {
-          document.getElementById('info-panel').classList.remove('active');
+        document.getElementById("close-btn").addEventListener("click", () => {
+          document.getElementById("info-panel").classList.remove("active");
         });
 
         const loader = new THREE.CubeTextureLoader();
@@ -555,17 +656,68 @@
         Graph.scene().background = texture;
       }
 
-      const settingsBtn = document.getElementById('settings-toggle');
-      const settingsPanel = document.getElementById('settings-panel');
-      const infoWrapper = document.getElementById('info-wrapper');
+      const settingsBtn = document.getElementById("settings-toggle");
+      const settingsPanel = document.getElementById("settings-panel");
+      const infoWrapper = document.getElementById("info-wrapper");
 
-      settingsBtn.addEventListener('click', () => {
-        settingsBtn.classList.toggle('rotating');
-        settingsPanel.classList.toggle('active');
+      settingsBtn.addEventListener("click", () => {
+        settingsBtn.classList.toggle("rotating");
+        settingsPanel.classList.toggle("active");
       });
-      const checkbox = document.getElementById('display-name');
-      checkbox.addEventListener('change', function () {
-        document.body.classList.toggle('hide-labels', !this.checked);
+      const checkbox = document.getElementById("display-name");
+      checkbox.addEventListener("change", function () {
+        document.body.classList.toggle("hide-labels", !this.checked);
+      });
+    </script>
+    <script>
+      function initPropertyElement(property) {
+        const header = property.querySelector(".properties-header");
+        const value = property.querySelector(".properties-value");
+        const icon = property.querySelector(".toggle-icon");
+        const verticalLine = icon?.querySelector(".vertical-line");
+
+        if (!header || !value || !icon || !verticalLine) return;
+
+        header.addEventListener("click", () => {
+          value.classList.toggle("hidden");
+          icon.classList.toggle("rotate");
+          verticalLine.classList.toggle("hidden");
+        });
+      }
+
+      function initToggleAll(toggleAll) {
+        const container = toggleAll.nextElementSibling;
+        if (container && container.classList.contains("properties-container")) {
+          toggleAll.addEventListener("click", () => {
+            container.classList.toggle("hidden");
+          });
+        }
+      }
+
+      document.querySelectorAll(".properties").forEach(initPropertyElement);
+      document.querySelectorAll(".toggle-all").forEach(initToggleAll);
+
+      const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType !== 1) return;
+
+            if (node.classList.contains("properties")) {
+              initPropertyElement(node);
+            }
+
+            if (node.classList.contains("toggle-all")) {
+              initToggleAll(node);
+            }
+            node.querySelectorAll?.(".properties").forEach(initPropertyElement);
+            node.querySelectorAll?.(".toggle-all").forEach(initToggleAll);
+          });
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
       });
     </script>
   </body>
