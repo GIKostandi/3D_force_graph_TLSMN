@@ -28,94 +28,7 @@
       href="https://test.core.talisman.ispras.ru/assets/favicon-48x48.png"
     />
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
-    <style>
-      @font-face {
-        font-family: 'Institut';
-        src: url("{% static 'fonts/Institut.woff2' %}") format('woff2'),
-          url("{% static 'fonts/Institut.woff' %}") format('woff');
-      }
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f8f9fa;
-      }
-      .form-container {
-        width: 100%;
-        max-width: 350px;
-        padding: 20px;
-        background: #035ba9;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .acss-12ade3v {
-        margin-left: 10px;
-        font-family: 'Institut', sans-serif;
-        font-size: 20px;
-        line-height: 32px;
-        color: #035ba9;
-        white-space: nowrap;
-        word-break: keep-all;
-      }
-      .acss-lzfym0 {
-        display: flex;
-        position: absolute;
-        top: 16px;
-        left: 24px;
-        height: 32px;
-        width: 236px;
-      }
-      .text-wrapper {
-        font-family: 'Institut', sans-serif;
-        font-size: 19px;
-        line-height: 32px;
-        color: #ffffff;
-        white-space: nowrap;
-        word-break: keep-all;
-      }
-      .text-wrapper-label {
-        font-family: 'Institut', sans-serif;
-        font-size: 13px;
-        line-height: 21px;
-        color: #ffffff;
-        white-space: nowrap;
-        word-break: keep-all;
-      }
-      .text-wrapper-input {
-        font-family: 'Institut', sans-serif;
-        font-size: 12px;
-        line-height: 20px;
-        white-space: nowrap;
-        word-break: keep-all;
-      }
-      .login-backdrop {
-        background-image: url("{% static 'icons/map.cd51472b.svg' %}");
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-color: rgba(209, 225, 232, 0.33);
-        width: 100vw;
-        height: 100vh;
-      }
-      #error-message {
-      font-family: 'Institut', sans-serif;
-      background: #FF0000;
-      padding: 20px;
-      width: 300px;
-      margin: 20px auto;
-      text-align: center;
-      transition: opacity 1s ease, max-height 1s ease;
-      opacity: 1;
-      max-height: 200px;
-      overflow: hidden;
-      color: #ffffff;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      font-size: 12px;
-    line-height: 20px;
-    }
-    </style>
+    <link rel="stylesheet" href="{% static 'styles/auth.css' %}" />
   </head>
   <body>
   <div class="loader-container">
@@ -216,17 +129,6 @@
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-      window.onload = function () {
-        document.querySelector(".loader-container").style.display = "none";
-        document.querySelector("main").style.visibility = "visible";
-      };
-    setTimeout(function() {
-    const element = document.getElementById('error-message');
-    if (element) {
-      element.style.display = 'none';
-    }
-  }, 5000);
-    </script>
+ <script src="{% static 'scripts/loader.js' %}"></script>
   </body>
 </html>
