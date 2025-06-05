@@ -64,11 +64,11 @@
       <div id="3d-graph"></div>
       <div id="info-panel">
         <div class="upper-wrapper">
-           <div><h2 id="node-name">Выберите узел</h2></div>
-        <div id="close-btn">
-          <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
-        </div>
+          <div><h2 id="node-name">Выберите узел</h2></div>
+          <div id="close-btn">
+            <img src="{% static 'icons/close-cross.svg' %}" alt="Закрыть" />
           </div>
+        </div>
         <div id="node-details"></div>
       </div>
       <div id="info-wrapper">
@@ -84,40 +84,40 @@
         </div>
       </div>
     </main>
-<script src="{% static 'scripts/loader.js' %}"></script>
+    <script src="{% static 'scripts/loader.js' %}"></script>
     <script type="module">
-      import * as THREE from 'https://esm.sh/three';
-      import ForceGraph3D from 'https://esm.sh/3d-force-graph';
+      import * as THREE from "https://esm.sh/three";
+      import ForceGraph3D from "https://esm.sh/3d-force-graph";
       import {
         CSS2DRenderer,
         CSS2DObject,
-      } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
+      } from "https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js";
       const fallbackSvgUrl = "{% static 'img/fallback.svg' %}";
-      const graphDataRaw = JSON.parse('{{ response|escapejs }}');
+      const graphDataRaw = JSON.parse("{{ response|escapejs }}");
       if (!graphDataRaw?.data?.researchMap?.paginationConcept?.listConcept) {
-        console.error('Некорректный JSON:', graphDataRaw);
+        console.error("Некорректный JSON:", graphDataRaw);
       } else {
         function extractValue(valueObj) {
           if (!valueObj) return null;
           switch (valueObj.__typename) {
-            case 'StringValue':
+            case "StringValue":
               return valueObj.stringValue;
-            case 'StringLocaleValue':
+            case "StringLocaleValue":
               return valueObj.stringLocaleValue;
-            case 'IntValue':
+            case "IntValue":
               return valueObj.intValue;
-            case 'DoubleValue':
+            case "DoubleValue":
               return valueObj.floatValue;
-            case 'TimestampValue':
+            case "TimestampValue":
               return valueObj.timestampValue;
-            case 'LinkValue':
+            case "LinkValue":
               return valueObj.linkValue?.name || valueObj.linkValue?.id;
-            case 'GeoPointValue':
+            case "GeoPointValue":
               return {
                 name: valueObj.name,
                 point: valueObj.point,
               };
-            case 'DateTimeValue':
+            case "DateTimeValue":
               return {
                 date: valueObj.date,
                 time: valueObj.time,
@@ -153,7 +153,7 @@
 
                   let value;
                   if (
-                    propValueRaw?.__typename === 'CompositeValue' &&
+                    propValueRaw?.__typename === "CompositeValue" &&
                     propValueRaw.listValue
                   ) {
                     value = propValueRaw.listValue.map((v) =>
@@ -259,19 +259,19 @@
         const highlightLinks = new Set();
         let hoverNode = null;
 
-        const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+        const Graph = new ForceGraph3D(document.getElementById("3d-graph"), {
           extraRenderers: [new CSS2DRenderer()],
         })
           .graphData(graphData)
-          .nodeAutoColorBy('group')
+          .nodeAutoColorBy("group")
           .nodeResolution(32)
           .nodeOpacity(0.95)
-          .nodeLabel('name')
+          .nodeLabel("name")
           .nodeThreeObject((node) => {
-            const nodeEl = document.createElement('div');
+            const nodeEl = document.createElement("div");
             nodeEl.textContent = node.name;
-            nodeEl.style.color = '#FFFFFF';
-            nodeEl.className = 'node-label';
+            nodeEl.style.color = "#FFFFFF";
+            nodeEl.className = "node-label";
             return new CSS2DObject(nodeEl);
           })
           .nodeThreeObjectExtend(true)
@@ -285,7 +285,7 @@
           .linkDirectionalArrowLength(3)
           .linkDirectionalArrowRelPos(1)
           .linkDirectionalArrowResolution(16)
-          .linkCurvature('curvature')
+          .linkCurvature("curvature")
 
           .onNodeHover((node) => {
             if ((!node && !highlightNodes.size) || hoverNode === node) return;
@@ -325,9 +325,9 @@
 
             Graph.cameraPosition(newPos, node, 1100);
 
-            const infoPanel = document.getElementById('info-panel');
-            const nameEl = document.getElementById('node-name');
-            const detailsEl = document.getElementById('node-details');
+            const infoPanel = document.getElementById("info-panel");
+            const nameEl = document.getElementById("node-name");
+            const detailsEl = document.getElementById("node-details");
 
             nameEl.textContent = node.name;
 
@@ -335,8 +335,8 @@
               if (!val?.date) return null;
               const { day, month, year } = val.date;
               if (day && month && year) {
-                const dd = String(day).padStart(2, '0');
-                const mm = String(month).padStart(2, '0');
+                const dd = String(day).padStart(2, "0");
+                const mm = String(month).padStart(2, "0");
                 return `${dd}.${mm}.${year}`;
               }
               return null;
@@ -346,7 +346,7 @@
               if (!val || val === null) return null;
 
               if (val?.date) return formatDate(val);
-              if (typeof val === 'object')
+              if (typeof val === "object")
                 return (
                   val.name ||
                   val.stringValue ||
@@ -359,21 +359,21 @@
             let propValueCount = 0;
             const propEntries = Object.entries(node.properties || {})
               .map(([key, val]) => {
-                if (val == null) return '';
+                if (val == null) return "";
 
-                let displayVal = '';
+                let displayVal = "";
                 if (Array.isArray(val)) {
                   const values = val.map(formatValue).filter(Boolean);
                   propValueCount += values.length;
                   displayVal = values
                     .map((v) => `<div><p>${v}</p></div>`)
-                    .join('');
+                    .join("");
                 } else {
                   const formatted = formatValue(val);
                   propValueCount++;
                   displayVal = formatted
                     ? `<div><p>${formatted}</p></div>`
-                    : '';
+                    : "";
                 }
                 return displayVal
                   ? `<div class="properties">
@@ -387,14 +387,14 @@
   </div>
   <div class="properties-value hidden">${displayVal}</div>
 </div>`
-                  : '';
+                  : "";
               })
 
               .filter(Boolean)
-              .join('');
-            let imageHtml = '';
+              .join("");
+            let imageHtml = "";
             if (node.image?.thumbnail) {
-              const fullImageUrl = '{{ stand_url }}' + node.image.thumbnail;
+              const fullImageUrl = "{{ stand_url }}" + node.image.thumbnail;
               imageHtml = `<img
     src="${fullImageUrl}"
     alt="Thumbnail"
@@ -406,10 +406,60 @@
     alt="Fallback SVG"
   />`;
             }
+            // Формирование блока связей
+            let linksHtml = "";
+            if (node.links && node.links.length > 0) {
+              const linksCount = node.links.length;
+              const linksByType = {};
+              node.links.forEach((l) => {
+                const other = l.source.id === node.id ? l.target : l.source;
+                const label = l.label || "Неизвестный тип";
+
+                if (!linksByType[label]) linksByType[label] = [];
+                linksByType[label].push(other.name);
+              });
+
+              const linksGrouped = Object.entries(linksByType)
+                .map(([type, names], idx) => {
+                  const items = names
+                    .map((name) => `<div><p>${name}</p></div>`)
+                    .join("");
+                  return `
+      <div class="properties">
+        <div class="properties-header">
+          <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="properties-name">${type}</p>
+        </div>
+        <div class="properties-value hidden">
+          ${items}
+        </div>
+      </div>
+    `;
+                })
+                .join("");
+
+              linksHtml = `
+  <div class="toggle-all-wrapper">
+    <svg class="toggle-icon-prop" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8.75003 14.46C8.46003 14.96 7.73998 14.96 7.44998 14.46L3.93997 8.37003L1.07998 3.41003C0.499985 2.41003 1.22003 1.16003 2.38003 1.16003H8.11001H13.84C15 1.16003 15.72 2.41003 15.14 3.41003L12.2801 8.37003L8.75003 14.46Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p class="toggle-all">Связи (${node.links.length})</p>
+  </div>
+  <div class="properties-container">
+    ${linksGrouped}
+  </div>
+`;
+            }
 
             detailsEl.innerHTML = `
   <div>${imageHtml}
-  <div class="nodetype"><p>Тип концепта</strong></p><p class="nodetypename">${node.TypeName}</p></div>
+  <div class="nodetype"><p>Тип концепта</strong></p><p class="nodetypename" style="color: ${
+    node.color || "#035ba9"
+  }">${node.TypeName}</p></div>
   </div>
   <div>
   <div>
@@ -422,19 +472,21 @@
     <div class="properties-container">
       ${propEntries}
     </div>
+     ${linksHtml}
   </div>
 </div>
 `;
-            infoPanel.classList.add('active');
+
+            infoPanel.classList.add("active");
           });
         function updateHighlight() {
           Graph.nodeColor((node) => {
             if (highlightNodes.has(node)) {
               return node === hoverNode
-                ? 'rgba(255,0,0,1)'
-                : 'rgba(255,160,0,0.8)';
+                ? "rgba(255,0,0,1)"
+                : "rgba(255,160,0,0.8)";
             }
-            return node.color || 'rgba(0,255,255,0.6)';
+            return node.color || "rgba(0,255,255,0.6)";
           });
 
           Graph.linkWidth((link) => (highlightLinks.has(link) ? 0.5 : 0.3));
@@ -443,8 +495,8 @@
           );
         }
 
-        document.getElementById('close-btn').addEventListener('click', () => {
-          document.getElementById('info-panel').classList.remove('active');
+        document.getElementById("close-btn").addEventListener("click", () => {
+          document.getElementById("info-panel").classList.remove("active");
         });
 
         const loader = new THREE.CubeTextureLoader();
@@ -459,69 +511,70 @@
         Graph.scene().background = texture;
       }
 
-      const settingsBtn = document.getElementById('settings-toggle');
-      const settingsPanel = document.getElementById('settings-panel');
-      const infoWrapper = document.getElementById('info-wrapper');
+      const settingsBtn = document.getElementById("settings-toggle");
+      const settingsPanel = document.getElementById("settings-panel");
+      const infoWrapper = document.getElementById("info-wrapper");
 
-      settingsBtn.addEventListener('click', () => {
-        settingsBtn.classList.toggle('rotating');
-        settingsPanel.classList.toggle('active');
+      settingsBtn.addEventListener("click", () => {
+        settingsBtn.classList.toggle("rotating");
+        settingsPanel.classList.toggle("active");
       });
-      const checkbox = document.getElementById('display-name');
-      checkbox.addEventListener('change', function () {
-        document.body.classList.toggle('hide-labels', !this.checked);
+      const checkbox = document.getElementById("display-name");
+      checkbox.addEventListener("change", function () {
+        document.body.classList.toggle("hide-labels", !this.checked);
       });
     </script>
     <script>
       function initPropertyElement(property) {
-        const header = property.querySelector('.properties-header');
-        const value = property.querySelector('.properties-value');
-        const icon = property.querySelector('.toggle-icon');
-        const verticalLine = icon?.querySelector('.vertical-line');
+        const header = property.querySelector(".properties-header");
+        const value = property.querySelector(".properties-value");
+        const icon = property.querySelector(".toggle-icon");
+        const verticalLine = icon?.querySelector(".vertical-line");
 
         if (!header || !value || !icon || !verticalLine) return;
 
-        header.addEventListener('click', () => {
-          value.classList.toggle('hidden');
-          icon.classList.toggle('rotate');
-          verticalLine.classList.toggle('hidden');
+        header.addEventListener("click", () => {
+          console.log("скрыл");
+          value.classList.toggle("hidden");
+          icon.classList.toggle("rotate");
+          verticalLine.classList.toggle("hidden");
         });
       }
 
       function initToggleAll(wrapper) {
         const container = wrapper.nextElementSibling;
-        const iconProp = wrapper.querySelector('.toggle-icon-prop');
+        const iconProp = wrapper.querySelector(".toggle-icon-prop");
 
-        if (container && container.classList.contains('properties-container')) {
-          wrapper.addEventListener('click', () => {
-            container.classList.toggle('hidden');
+        if (container && container.classList.contains("properties-container")) {
+          wrapper.addEventListener("click", () => {
+            container.classList.toggle("hidden");
 
             // Поворачиваем иконку при клике
             if (iconProp) {
-              iconProp.classList.toggle('rotate');
+              iconProp.classList.toggle("rotate");
             }
           });
         }
       }
 
-      document.querySelectorAll('.properties').forEach(initPropertyElement);
-      document.querySelectorAll('.toggle-all-wrapper').forEach(initToggleAll);
+      document.querySelectorAll(".properties").forEach(initPropertyElement);
+      document.querySelectorAll(".toggle-all-wrapper").forEach(initToggleAll);
 
       const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType !== 1) return;
 
-            if (node.classList.contains('properties')) {
+            if (node.classList.contains("properties")) {
               initPropertyElement(node);
             }
 
-            if (node.classList.contains('toggle-all-wrapper')) {
+            if (node.classList.contains("toggle-all-wrapper")) {
               initToggleAll(node);
             }
-            node.querySelectorAll?.('.properties').forEach(initPropertyElement);
+            node.querySelectorAll?.(".properties").forEach(initPropertyElement);
             node
-              .querySelectorAll?.('.toggle-all-wrapper')
+              .querySelectorAll?.(".toggle-all-wrapper")
               .forEach(initToggleAll);
           });
         }
