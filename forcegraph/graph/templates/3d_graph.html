@@ -83,8 +83,12 @@
           <img src="{% static 'icons/gear-icon.svg' %}" />
         </div>
       </div>
+      <button id="toggleButton">Switch to VR</button>
+      <div id="vr-graph" class="hidden-graph"></div>
     </main>
     <script src="{% static 'scripts/loader.js' %}"></script>
+    <script src="//cdn.jsdelivr.net/npm/aframe"></script>
+    <script src="//cdn.jsdelivr.net/npm/3d-force-graph-vr"></script>
     <script type="module">
       import * as THREE from 'https://esm.sh/three';
       import ForceGraph3D from 'https://esm.sh/3d-force-graph';
@@ -216,16 +220,16 @@
               }
               return displayVal
                 ? `<div class="properties">
-  <div class="properties-header">
-    <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <p class="properties-name">${key}</p>
-  </div>
-  <div class="properties-value hidden">${displayVal}</div>
-</div>`
+        <div class="properties-header">
+          <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="properties-name">${key}</p>
+        </div>
+        <div class="properties-value hidden">${displayVal}</div>
+      </div>`
                 : '';
             })
 
@@ -235,15 +239,15 @@
           if (node.image?.thumbnail) {
             const fullImageUrl = '{{ stand_url }}' + node.image.thumbnail;
             imageHtml = `<img
-    src="${fullImageUrl}"
-    alt="Thumbnail"
-    onerror="this.onerror=null; this.src='${fallbackSvgUrl}'"
-  />`;
+          src="${fullImageUrl}"
+          alt="Thumbnail"
+          onerror="this.onerror=null; this.src='${fallbackSvgUrl}'"
+        />`;
           } else {
             imageHtml = `<img
-    src="${fallbackSvgUrl}"
-    alt="Fallback SVG"
-  />`;
+          src="${fallbackSvgUrl}"
+          alt="Fallback SVG"
+        />`;
           }
           // Формирование блока связей
           let linksHtml = '';
@@ -264,60 +268,61 @@
                   .map((name) => `<div><p>${name}</p></div>`)
                   .join('');
                 return `
-      <div class="properties">
-        <div class="properties-header">
-          <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <p class="properties-name">${type}</p>
-        </div>
-        <div class="properties-value hidden">
-          ${items}
-        </div>
-      </div>
-    `;
+            <div class="properties">
+              <div class="properties-header">
+                <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M15.1 1H1.09998V15H15.1V1Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M3.59998 8H12.6" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path class="vertical-line" d="M8.09998 3.5V12.5" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p class="properties-name">${type}</p>
+              </div>
+              <div class="properties-value hidden">
+                ${items}
+              </div>
+            </div>
+          `;
               })
               .join('');
 
             linksHtml = `
-  <div class="toggle-all-wrapper">
-    <svg class="toggle-icon-prop" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M8.75003 14.46C8.46003 14.96 7.73998 14.96 7.44998 14.46L3.93997 8.37003L1.07998 3.41003C0.499985 2.41003 1.22003 1.16003 2.38003 1.16003H8.11001H13.84C15 1.16003 15.72 2.41003 15.14 3.41003L12.2801 8.37003L8.75003 14.46Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <p class="toggle-all">Связи (${node.links.length})</p>
-  </div>
-  <div class="properties-container">
-    ${linksGrouped}
-  </div>
-`;
+        <div class="toggle-all-wrapper">
+          <svg class="toggle-icon-prop" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8.75003 14.46C8.46003 14.96 7.73998 14.96 7.44998 14.46L3.93997 8.37003L1.07998 3.41003C0.499985 2.41003 1.22003 1.16003 2.38003 1.16003H8.11001H13.84C15 1.16003 15.72 2.41003 15.14 3.41003L12.2801 8.37003L8.75003 14.46Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="toggle-all">Связи (${node.links.length})</p>
+        </div>
+        <div class="properties-container">
+          ${linksGrouped}
+        </div>
+      `;
           }
 
           detailsEl.innerHTML = `
-  <div>${imageHtml}
-  <div class="nodetype"><p>Тип концепта</strong></p><p class="nodetypename" style="color: ${
-    node.color || '#035ba9'
-  }">${node.TypeName}</p></div>
-  </div>
-  <div>
-  <div>
-    <div class="toggle-all-wrapper">
-     <svg class="toggle-icon-prop"xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-<path d="M8.75003 14.46C8.46003 14.96 7.73998 14.96 7.44998 14.46L3.93997 8.37003L1.07998 3.41003C0.499985 2.41003 1.22003 1.16003 2.38003 1.16003H8.11001H13.84C15 1.16003 15.72 2.41003 15.14 3.41003L12.2801 8.37003L8.75003 14.46Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-      <p class="toggle-all">Характеристики (${propValueCount})</p>
-    </div>
-    <div class="properties-container">
-      ${propEntries}
-    </div>
-     ${linksHtml}
-  </div>
-</div>
-`;
+        <div>${imageHtml}
+        <div class="nodetype"><p>Тип концепта</strong></p><p class="nodetypename" style="color: ${
+          node.color || '#035ba9'
+        }">${node.TypeName}</p></div>
+        </div>
+        <div>
+        <div>
+          <div class="toggle-all-wrapper">
+           <svg class="toggle-icon-prop"xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8.75003 14.46C8.46003 14.96 7.73998 14.96 7.44998 14.46L3.93997 8.37003L1.07998 3.41003C0.499985 2.41003 1.22003 1.16003 2.38003 1.16003H8.11001H13.84C15 1.16003 15.72 2.41003 15.14 3.41003L12.2801 8.37003L8.75003 14.46Z" stroke="#265AA4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+            <p class="toggle-all">Характеристики (${propValueCount})</p>
+          </div>
+          <div class="properties-container">
+            ${propEntries}
+          </div>
+           ${linksHtml}
+        </div>
+      </div>
+      `;
 
           infoPanel.classList.add('active');
         });
+
       function updateHighlight() {
         Graph.nodeColor((node) => {
           if (highlightNodes.has(node)) {
@@ -337,7 +342,22 @@
       document.getElementById('close-btn').addEventListener('click', () => {
         document.getElementById('info-panel').classList.remove('active');
       });
-
+      const GraphVR = ForceGraphVR()(
+        document.getElementById('vr-graph')
+      ).graphData(graphData);
+      // Toggle logic
+      const toggleBtn = document.getElementById('toggleButton');
+      let isVR = false;
+      toggleBtn.addEventListener('click', () => {
+        isVR = !isVR;
+        document
+          .getElementById('3d-graph')
+          .classList.toggle('hidden-graph', isVR);
+        document
+          .getElementById('vr-graph')
+          .classList.toggle('hidden-graph', !isVR);
+        toggleBtn.textContent = isVR ? 'Switch to 3D' : 'Switch to VR';
+      });
       const loader = new THREE.CubeTextureLoader();
       const texture = loader.load([
         "{% static 'img/Front.png' %}",
