@@ -1,14 +1,22 @@
 import json
 import re
+import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from ptal_api.providers.gql_providers import KeycloakAwareGQLClient
 from .models import Stands
 from graphql import GraphQLError
+from urllib.parse import urlparse, quote
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.views.decorators.http import require_GET
+from urllib.parse import urljoin
 
 realm = "core"
 client_id = "web-ui"
 client_key = "039f8182-db0a-45d9-bc25-e1a979b06bfd"
+
+def proxy_image_url(original_url):
+    return f"/proxy-image/?url={quote(original_url, safe='')}"
 
 def auth_view(request):
     stands = Stands.objects.all()
@@ -64,105 +72,38 @@ def auth_view(request):
                                   value {{
                                     __typename
                                     ... on DateTimeValue {{
-                                      date {{
-                                        day
-                                        month
-                                        year
-                                      }}
-                                      time {{
-                                        hour
-                                        minute
-                                        second
-                                      }}
+                                      date {{ day month year }}
+                                      time {{ hour minute second }}
                                     }}
-                                    ... on DoubleValue {{
-                                      floatValue: value
-                                    }}
+                                    ... on DoubleValue {{ floatValue: value }}
                                     ... on GeoPointValue {{
                                       name
-                                      point {{
-                                        latitude
-                                        longitude
-                                      }}
+                                      point {{ latitude longitude }}
                                     }}
-                                    ... on IntValue {{
-                                      intValue: value
-                                    }}
-                                    ... on LinkValue {{
-                                      linkValue: link
-                                    }}
-                                    ... on StringLocaleValue {{
-                                      stringLocaleValue: value
-                                      locale
-                                    }}
-                                    ... on StringValue {{
-                                      stringValue: value
-                                    }}
-                                    ... on TimestampValue {{
-                                      timestampValue: value
-                                    }}
+                                    ... on IntValue {{ intValue: value }}
+                                    ... on LinkValue {{ linkValue: link }}
+                                    ... on StringLocaleValue {{ stringLocaleValue: value locale }}
+                                    ... on StringValue {{ stringValue: value }}
+                                    ... on TimestampValue {{ timestampValue: value }}
                                   }}
                                 }}
                               }}
-                              ... on DateTimeValue {{
-                                date {{
-                                  day
-                                  month
-                                  year
-                                }}
-                                time {{
-                                  hour
-                                  minute
-                                  second
-                                }}
-                              }}
-                              ... on DoubleValue {{
-                                floatValue: value
-                              }}
-                              ... on GeoPointValue {{
-                                name
-                                point {{
-                                  latitude
-                                  longitude
-                                }}
-                              }}
-                              ... on IntValue {{
-                                intValue: value
-                              }}
-                              ... on LinkValue {{
-                                linkValue: link
-                              }}
-                              ... on StringLocaleValue {{
-                                stringLocaleValue: value
-                                locale
-                              }}
-                              ... on StringValue {{
-                                stringValue: value
-                              }}
-                              ... on TimestampValue {{
-                                timestampValue: value
-                              }}
+                              ... on DateTimeValue {{ date {{ day month year }} time {{ hour minute second }} }}
+                              ... on DoubleValue {{ floatValue: value }}
+                              ... on GeoPointValue {{ name point {{ latitude longitude }} }}
+                              ... on IntValue {{ intValue: value }}
+                              ... on LinkValue {{ linkValue: link }}
+                              ... on StringLocaleValue {{ stringLocaleValue: value locale }}
+                              ... on StringValue {{ stringValue: value }}
+                              ... on TimestampValue {{ timestampValue: value }}
                             }}
                           }}
                         }}
                         paginationConceptLink(filterSettings: {{}}) {{
                           listConceptLink {{
-                            from {{
-                              ... on Concept {{
-                                id
-                                name
-                              }}
-                            }}
-                            to {{
-                              ... on Concept {{
-                                id
-                                name
-                              }}
-                            }}
-                            conceptLinkType {{
-                              id
-                              name
-                            }}
+                            from {{ ... on Concept {{ id name }} }}
+                            to {{ ... on Concept {{ id name }} }}
+                            conceptLinkType {{ id name }}
                           }}
                         }}
                       }}
@@ -172,7 +113,21 @@ def auth_view(request):
                 """
                 response = gql_client.execute(query)
 
-                # Проверка на специфические сообщения об ошибке
+                request.session["access_token"] = gql_client._access_token
+                request.session["media_domain"] = stand_url
+
+                concepts = (
+                    response.get("data", {})
+                            .get("researchMap", {})
+                            .get("paginationConcept", {})
+                            .get("listConcept", [])
+                )
+                for concept in concepts:
+                    image = concept.get("image")
+                    if image and image.get("thumbnail"):
+                        full_url = urljoin(stand_url, image["thumbnail"])
+                        image["thumbnail"] = proxy_image_url(full_url)
+
                 def find_message(obj, targets):
                     if isinstance(obj, dict):
                         for k, v in obj.items():
@@ -196,7 +151,10 @@ def auth_view(request):
                         messages.error(request, "Произошла ошибка при обработке Идентификатора ИК.")
                     return redirect("auth_view")
 
-                return render(request, "3d_graph.html", {"response": json.dumps(response), "stand_url": stand_url})
+                return render(request, "3d_graph.html", {
+                    "response": json.dumps(response),
+                    "stand_url": stand_url
+                })
 
         except Stands.DoesNotExist:
             messages.error(request, "Указанный стенд не найден.")
@@ -240,3 +198,32 @@ def auth_view(request):
     return render(request, "auth_form.html", {
         "stands": stands
     })
+
+@require_GET
+def proxy_image(request):
+    image_url = request.GET.get("url")
+    if not image_url:
+        return HttpResponseBadRequest("Missing 'url' parameter")
+
+    access_token = request.session.get("access_token")
+    media_domain = request.session.get("media_domain")
+
+    parsed = urlparse(image_url)
+    if not media_domain or parsed.hostname not in media_domain:
+        return HttpResponseForbidden("Недопустимый домен")
+
+    if not access_token:
+        return HttpResponseForbidden("Требуется авторизация")
+
+    try:
+        response = requests.get(image_url, headers={
+            "Authorization": f"Bearer {access_token}"
+        }, stream=True)
+
+        response.raise_for_status()
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get("Content-Type", "image/jpeg")
+        )
+    except Exception as e:
+        return HttpResponse(f"Ошибка при загрузке изображения: {str(e)}", status=500)

@@ -237,7 +237,7 @@
             .join('');
           let imageHtml = '';
           if (node.image?.thumbnail) {
-            const fullImageUrl = '{{ stand_url }}' + node.image.thumbnail;
+            const fullImageUrl = node.image.thumbnail;
             imageHtml = `<img
           src="${fullImageUrl}"
           alt="Thumbnail"
@@ -249,7 +249,7 @@
           alt="Fallback SVG"
         />`;
           }
-          // Формирование блока связей
+
           let linksHtml = '';
           if (node.links && node.links.length > 0) {
             const linksCount = node.links.length;
