@@ -111,10 +111,13 @@ body {
 #node-details img {
   display: block;
   width: 150px;
+  height: 150px;
+  object-fit: contain;
   border-radius: 8px;
   margin-left: 40px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
+
 #node-details .properties-name,
 .properties-value {
   font-family: 'Inter', sans-serif;
