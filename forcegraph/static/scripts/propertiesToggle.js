@@ -7,7 +7,6 @@ export function initPropertyElement(property) {
   if (!header || !value || !icon || !verticalLine) return;
 
   header.addEventListener('click', () => {
-    console.log('скрыл');
     value.classList.toggle('hidden');
     icon.classList.toggle('rotate');
     verticalLine.classList.toggle('hidden');
