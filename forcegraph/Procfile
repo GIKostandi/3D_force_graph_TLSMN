@@ -1,1 +1,1 @@
-web: gunicorn forcegraph.wsgi
+web: gunicorn forcegraph.forcegraph.wsgi
